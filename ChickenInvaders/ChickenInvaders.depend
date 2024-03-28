@@ -1,0 +1,122 @@
+# depslib dependency file v1.0
+1711621789 source:d:\chickeninvaders\graphics.cpp
+	<SDL.h>
+	<SDL_image.h>
+	"graphics.h"
+
+1711623125 d:\chickeninvaders\graphics.h
+	<SDL.h>
+	<SDL_image.h>
+	"defs.h"
+
+1711623585 d:\chickeninvaders\defs.h
+
+1711624781 source:d:\chickeninvaders\main.cpp
+	<iostream>
+	<vector>
+	<SDL.h>
+	<SDL_image.h>
+	<cstdlib>
+	<ctime>
+	<algorithm>
+	"graphics.h"
+	"defs.h"
+	"GameObject.h"
+	"SpaceShip.h"
+	"SpaceShip.h"
+	"Enemy.h"
+	"BackGround.h"
+	"BackGroundPart.h"
+	"Bullet.h"
+	"BrokenEgg.h"
+	"Egg.h"
+	"GameManager.h"
+	"GameObject.h"
+
+1711619833 d:\chickeninvaders\gameobject.h
+	<vector>
+	<SDL.h>
+	<SDL_image.h>
+	"defs.h"
+	"graphics.h"
+
+1711619211 d:\chickeninvaders\spaceship.h
+	<SDL.h>
+	<SDL_image.h>
+	"defs.h"
+	"graphics.h"
+	"GameObject.h"
+
+1711560270 source:d:\chickeninvaders\spaceship.cpp
+	<iostream>
+	<SDL.h>
+	<SDL_image.h>
+	"SpaceShip.h"
+
+1711619686 source:d:\chickeninvaders\bullet.cpp
+	<iostream>
+	<SDL.h>
+	<SDL_image.h>
+	"Bullet.h"
+	"defs.h"
+	"GameObject.h"
+
+1711619686 d:\chickeninvaders\bullet.h
+	"GameObject.h"
+	"defs.h"
+	"graphics.h"
+
+1711618840 source:d:\chickeninvaders\egg.cpp
+	<iostream>
+	<SDL.h>
+	<SDL_image.h>
+	"Egg.h"
+
+1711621406 d:\chickeninvaders\egg.h
+	"GameObject.h"
+	"defs.h"
+	"graphics.h"
+	<vector>
+
+1711620670 source:d:\chickeninvaders\enemy.cpp
+	<iostream>
+	<SDL.h>
+	<SDL_image.h>
+	"Enemy.h"
+	"Egg.h"
+
+1711621428 d:\chickeninvaders\enemy.h
+	"GameObject.h"
+	"defs.h"
+	"graphics.h"
+	"Egg.h"
+
+1711620082 source:d:\chickeninvaders\brokenegg.cpp
+	"BrokenEgg.h"
+
+1711620082 d:\chickeninvaders\brokenegg.h
+	"GameObject.h"
+
+1711623742 source:d:\chickeninvaders\gamemanager.cpp
+	"SDL.h"
+	"SDL_image.h"
+	<bits/stdc++.h>
+	"GameManager.h"
+	"Egg.h"
+	"Enemy.h"
+	"BrokenEgg.h"
+	"SpaceShip.h"
+	"Bullet.h"
+	"graphics.h"
+	"BackGround.h"
+
+1711622832 d:\chickeninvaders\gamemanager.h
+	"SDL.h"
+
+1711623301 d:\chickeninvaders\background.h
+	"GameObject.h"
+	"BackGroundPart.h"
+
+1711623291 d:\chickeninvaders\backgroundpart.h
+	"GameObject.h"
+
