@@ -15,16 +15,13 @@
 
 using namespace std;
 
-Player* player = nullptr;
+Player* player =nullptr;
 Graphics graphics;
 Background* background = nullptr;
-
-
-
 vector<GameObject*> eggs;
 vector<Bullet*> bullets;
-vector<Enemy*> enemies;
 vector<GameObject*> BrokenEggs;
+vector<Enemy*> enemies;
 
 
 
