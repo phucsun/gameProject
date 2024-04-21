@@ -1,47 +1,61 @@
-#ifndef _GAMEOBJECT__H
-#define _GAMEOBJECT__H
+#ifndef _APP__H
+#define _APP__H
 
-
-#include<vector>
-
+#include<iostream>
 #include <SDL.h>
 #include <SDL_image.h>
 #include "defs.h"
-#include "graphics.h"
 
-class GameObject {
-protected:
-   SDL_Rect rect;
-   SDL_Texture* texture;
-   SDL_Renderer* renderer;
-   Graphics graphics;
-public:
-   GameObject(const char* imagePath, int x, int y, int w, int h) : rect({ x, y, w, h }) {
-       texture = graphics.loadTexture(imagePath);
-   }
+using namespace std;
 
-   virtual ~GameObject() {
-       SDL_DestroyTexture(texture);
-   }
+struct Entity {
+	int x;
+	int y;
+	int w;
+	int h;
+    float dx;
+	float dy;
+	int side;
+	int health;
+	int reload;
+	SDL_Texture *texture;
 
-   virtual void update() {}
-   virtual void render() {
-       SDL_RenderCopy(renderer, texture, nullptr, &rect);
-   }
-   SDL_Rect getRect() {
-       return rect;
-   }
-   SDL_Texture* getTexture(){
-       return texture;
-   }
-   int getX() const { return rect.x; }
-   int getY() const { return rect.y; }
-   int getWidth() const { return rect.w; }
-   int getHeight() const { return rect.h; }
+	bool collides(Entity* other) {
+	    return (max(x, other->x) < min(x + w, other->x + other->w))
+	        && (max(y, other->y) < min(y + h, other->y + other->h));
+	}
 
-   void setPosition(int x, int y) { rect.x = x; rect.y = y; }
-   virtual bool getIsAlive(){}
+	void move() {
+	    x += dx;
+	    y += dy;
+	}
 
+	bool offScreen() {
+	     return x < -w || y < -h || x > SCREEN_WIDTH || y > SCREEN_HEIGHT;
+	}
 };
-#endif
 
+struct Explosion {
+	float x;
+	float y;
+	float dx;
+	float dy;
+	int r, g, b, a;
+};
+
+struct Debris {
+	float x;
+	float y;
+	float dx;
+	float dy;
+	SDL_Rect rect;
+	SDL_Texture *texture;
+	int life;
+};
+
+struct Star {
+	int x;
+	int y;
+	int speed;
+};
+#endif // _APP__H
