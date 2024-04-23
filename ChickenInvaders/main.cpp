@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
 		input.get();
 
-		game.doLogic(input.keyboard);
+		game.doLogic(input.keyboard , graphics);
         game.draw(graphics);
 
 		graphics.presentScene();

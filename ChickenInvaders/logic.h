@@ -4,6 +4,7 @@
 #include <list>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 #include "defs.h"
 #include "graphics.h"
 #include "GameObject.h"
@@ -41,6 +42,7 @@ struct Game {
 	Star stars[MAX_STARS];
 
     SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background, *rockTexture;
+    Mix_Chunk *gJump;
     int enemySpawnTimer;
     int stageResetTimer;
 
@@ -59,8 +61,6 @@ struct Game {
             stars[i].x = rand() % SCREEN_WIDTH;
             stars[i].y = rand()%500-500;
             stars[i].speed = rand()%4 +4 ;
-            stars[i].health = 1;
-            SDL_QueryTexture(*rockTexture, NULL, NULL, stars[i].w, stars[i].h);
         }
     }
 
@@ -84,6 +84,7 @@ struct Game {
         enemyTexture = graphics.loadTexture("chickenwater.png");
         enemyBulletTexture = graphics.loadTexture("egg.png");
         background = graphics.loadTexture("space2.png");
+        gJump = graphics.loadSound("jump.wav");
         reset();
     }
 
@@ -126,7 +127,7 @@ struct Game {
         enemy->reload = (rand() % FRAME_PER_SECOND * 2);
     }
 
-    void doPlayer(int keyboard[])
+    void doPlayer(int keyboard[] , Graphics graphics)
     {
         if (player.health == 0) return;
 
@@ -137,7 +138,10 @@ struct Game {
         if (keyboard[SDL_SCANCODE_S]) player.dy = PLAYER_SPEED;
         if (keyboard[SDL_SCANCODE_A]) player.dx = -PLAYER_SPEED;
         if (keyboard[SDL_SCANCODE_D]) player.dx = PLAYER_SPEED;
-        if (keyboard[SDL_SCANCODE_UP] && player.reload == 0) fireBullet();
+        if (keyboard[SDL_SCANCODE_UP] && player.reload == 0){
+            fireBullet();
+            graphics.play(gJump);
+        }
     }
 
     bool bulletHitFighter(Entity *b)
@@ -150,16 +154,7 @@ struct Game {
         }
         return false;
     }
-    bool bulletHitStar(Entity *b)
-    {
-        for(auto star : stars){
-            if(b->collide(&star)){
-                star->health=0;
-                return true;
-            }
-        }
-        return false;
-    }
+
     void doBullets(void)
     {
         auto it = bullets.begin();
@@ -167,7 +162,7 @@ struct Game {
             auto temp = it++;
             Entity* b = *temp;
             b->move();
-            if (bulletHitFighter(b) || b->offScreen() || bulletHitStar(b)) {
+            if (bulletHitFighter(b) || b->offScreen()) {
                 delete b;
                 bullets.erase(temp);
             }
@@ -248,7 +243,7 @@ struct Game {
         }
     }
 
-    void doLogic(int keyboard[]) {
+    void doLogic(int keyboard[] , Graphics graphics) {
         doBackground();
         doStarfield();
 
@@ -256,7 +251,7 @@ struct Game {
                 reset();
         }
 
-        doPlayer(keyboard);
+        doPlayer(keyboard , graphics);
         doFighters();
         doEnemies();
         doBullets();

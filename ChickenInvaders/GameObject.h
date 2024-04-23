@@ -9,15 +9,6 @@
 
 using namespace std;
 
-struct Star {
-	int x;
-	int y;
-	int w;
-	int h;
-	int speed;
-	int health;
-};
-
 struct Entity {
 	int x;
 	int y;
@@ -35,10 +26,7 @@ struct Entity {
 	    return (max(x, other->x) < min(x + w, other->x + other->w))
 	        && (max(y, other->y) < min(y + h, other->y + other->h));
 	}
-    bool collide(Star star){
-        return (max(x, star.x) < min(x + w, star.x + star.w))
-	        && (max(y, star.y) < min(y + h, star.y + star.h));
-    }
+
 	void move() {
 	    x += dx;
 	    y += dy;
@@ -79,5 +67,9 @@ struct Entity {
 };
 
 
-
+struct Star {
+	int x;
+	int y;
+	int speed;
+};
 #endif // _APP__H
