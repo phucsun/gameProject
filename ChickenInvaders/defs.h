@@ -7,7 +7,7 @@
 
 #define PLAYER_SPEED          10
 #define PLAYER_BULLET_SPEED   16
-#define BACKGROUND_SCROLL_SPEED 2
+#define BACKGROUND_SCROLL_SPEED 1
 #define PLAYER_RELOAD          8
 #define MAX_KEYBOARD_KEYS 350
 

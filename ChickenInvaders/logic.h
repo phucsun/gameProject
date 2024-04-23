@@ -1,6 +1,5 @@
 #ifndef _LOGIC__H
 #define _LOGIC__H
-
 #include <iostream>
 #include <list>
 #include <SDL.h>
@@ -38,12 +37,10 @@ struct Game {
     Entity player;
     list<Entity*> bullets;
 	list<Entity*> fighters;
-    list<Entity*> explosions;
-	list<Entity*> debris;
 
 	Star stars[MAX_STARS];
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background, *explosionTexture , *rockTexture;
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background, *rockTexture;
     int enemySpawnTimer;
     int stageResetTimer;
 
@@ -60,8 +57,10 @@ struct Game {
     void initStarfield(void) {
         for (int i = 0 ; i < MAX_STARS ; i++)	{
             stars[i].x = rand() % SCREEN_WIDTH;
-            stars[i].y = rand() % SCREEN_HEIGHT - 500;
-            stars[i].speed = 4 ;
+            stars[i].y = rand()%500-500;
+            stars[i].speed = rand()%4 +4 ;
+            stars[i].health = 1;
+            SDL_QueryTexture(*rockTexture, NULL, NULL, stars[i].w, stars[i].h);
         }
     }
 
@@ -69,8 +68,6 @@ struct Game {
     {
         empty(fighters);
         empty(bullets);
-        empty(explosions);
-        empty(debris);
         fighters.push_back(&player);
 	    initPlayer(player);
 	    initStarfield();
@@ -87,8 +84,6 @@ struct Game {
         enemyTexture = graphics.loadTexture("chickenwater.png");
         enemyBulletTexture = graphics.loadTexture("egg.png");
         background = graphics.loadTexture("space2.png");
-        explosionTexture = graphics.loadTexture("pngegg.png");
-
         reset();
     }
 
@@ -124,8 +119,7 @@ struct Game {
         bullet->x += (enemy->w / 2) - (bullet->w / 2);
         bullet->y += (enemy->h / 2) - (bullet->h / 2);
 
-        calcSlope(player.x + (player.w / 2), player.y + (player.h / 2),
-                  enemy->x, enemy->y, &bullet->dx, &bullet->dy);
+        calcSlope(player.x + (player.w / 2), player.y + (player.h / 2) , enemy->x, enemy->y, &bullet->dx, &bullet->dy);
         bullet->dx *= ENEMY_BULLET_SPEED;
         bullet->dy *= ENEMY_BULLET_SPEED;
 
@@ -139,11 +133,11 @@ struct Game {
         player.dx = player.dy = 0;
 
         if (player.reload > 0) player.reload--;
-        if (keyboard[SDL_SCANCODE_UP]) player.dy = -PLAYER_SPEED;
-        if (keyboard[SDL_SCANCODE_DOWN]) player.dy = PLAYER_SPEED;
-        if (keyboard[SDL_SCANCODE_LEFT]) player.dx = -PLAYER_SPEED;
-        if (keyboard[SDL_SCANCODE_RIGHT]) player.dx = PLAYER_SPEED;
-        if (keyboard[SDL_SCANCODE_SPACE] && player.reload == 0) fireBullet();
+        if (keyboard[SDL_SCANCODE_W]) player.dy = -PLAYER_SPEED;
+        if (keyboard[SDL_SCANCODE_S]) player.dy = PLAYER_SPEED;
+        if (keyboard[SDL_SCANCODE_A]) player.dx = -PLAYER_SPEED;
+        if (keyboard[SDL_SCANCODE_D]) player.dx = PLAYER_SPEED;
+        if (keyboard[SDL_SCANCODE_UP] && player.reload == 0) fireBullet();
     }
 
     bool bulletHitFighter(Entity *b)
@@ -156,7 +150,16 @@ struct Game {
         }
         return false;
     }
-
+    bool bulletHitStar(Entity *b)
+    {
+        for(auto star : stars){
+            if(b->collide(&star)){
+                star->health=0;
+                return true;
+            }
+        }
+        return false;
+    }
     void doBullets(void)
     {
         auto it = bullets.begin();
@@ -164,7 +167,7 @@ struct Game {
             auto temp = it++;
             Entity* b = *temp;
             b->move();
-            if (bulletHitFighter(b) || b->offScreen()) {
+            if (bulletHitFighter(b) || b->offScreen() || bulletHitStar(b)) {
                 delete b;
                 bullets.erase(temp);
             }
@@ -183,16 +186,18 @@ struct Game {
         if (--enemySpawnTimer <= 0) {
             Entity *enemy = new Entity();
             fighters.push_back(enemy);
-            enemy->x = SCREEN_WIDTH;
-            enemy->y = rand() % SCREEN_HEIGHT;
-            enemy->dx = -(2 + (rand() % 4));
+            enemy->x = rand() % SCREEN_WIDTH - 100;
+            enemy->y = rand() % SCREEN_HEIGHT - SCREEN_HEIGHT;
             enemy->health = 1;
+            enemy->dx=1;
+            enemy->dy=1;
+            enemy->moveDirection = 1;
             enemy->reload = FRAME_PER_SECOND * (1 + (rand() % 3));
             enemy->side = SIDE_ALIEN;
             enemy->texture = enemyTexture;
             SDL_QueryTexture(enemy->texture, NULL, NULL, &enemy->w, &enemy->h);
 
-            enemySpawnTimer = 30 + (rand() % 60);
+            enemySpawnTimer = 60 + (rand() % 60);
         }
     }
 
@@ -205,7 +210,8 @@ struct Game {
             auto temp = it++;
             Entity* fighter = *temp;
 
-            fighter->move();
+            fighter->move_(bullets);
+
             if (fighter->x < -fighter->w) fighter->health = 0;
 
             if (fighter->health == 0) {
@@ -235,56 +241,26 @@ struct Game {
     void doStarfield(void) {
         for (int i = 0; i < MAX_STARS; i++) {
             stars[i].y += stars[i].speed;
-
-            // Kiểm tra nếu ngôi sao đi qua phía dưới màn hình, đặt lại vị trí của nó ở trên màn hình
             if (stars[i].y > SCREEN_HEIGHT) {
-                stars[i].x = rand() % SCREEN_WIDTH; // Đặt lại vị trí x của ngôi sao
-                stars[i].y = 0; // Đặt lại vị trí y của ngôi sao để nó bắt đầu từ trên trên màn hình
+                stars[i].x = rand() % SCREEN_WIDTH;
+                stars[i].y = 0;
             }
         }
     }
 
-    void doExplosions(void) {
-        auto it = explosions.begin();
-        while (it != explosions.end()) {
-            auto temp = it++;
-            Entity* e = *temp;
-            e->move();
-            if (e->offScreen()) {
-                delete e;
-                explosions.erase(temp);
-            }
-        }
-    }
-/*
-    void doDebris(void) {
-        auto it = debris.begin();
-        while (it != debris.end()) {
-            auto temp = it++;
-            Entity* e = *temp;
-            e->move();
-            e->dy += 0.5;
-            if (--e->life <= 0) {
-                delete e;
-                debris.erase(temp);
-            }
-        }
-    }
-*/
     void doLogic(int keyboard[]) {
         doBackground();
         doStarfield();
 
-        if (player.health == 0 && --stageResetTimer <= 0) reset();
+        if (player.health == 0 && --stageResetTimer <= 0){
+                reset();
+        }
 
         doPlayer(keyboard);
         doFighters();
         doEnemies();
         doBullets();
         spawnEnemies();
-
-        doExplosions();
-      //  doDebris();
     }
 
     void drawBackground(SDL_Renderer* renderer) {

@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 
 		graphics.presentScene();
 
-		SDL_Delay(10);
+		SDL_Delay(15);
 	}
 
     graphics.quit();
