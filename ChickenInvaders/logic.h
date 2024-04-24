@@ -14,10 +14,12 @@ struct GameLoop {
 
     GameObject player;
     GameObject boom;
+
+    Sprite man;
     list<GameObject*> bullets;
 	list<GameObject*> fighters;
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture;
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *manTexture;
     Mix_Chunk *gJump;
 
     int enemySpawnTimer;
@@ -36,9 +38,12 @@ struct GameLoop {
     {
         clean(fighters);
         clean(bullets);
+//        SDL_DestroyTexture( manTexture );
+//        manTexture = nullptr;
         fighters.push_back(&player);
 	    player.initObject(POS_X , POS_Y , 1 , 0 , SIDE_PLAYER);
 	    boom.initObject(player.x , 0 - (rand()%5)*15 , 1 , 0 , SIDE_ALIEN );
+	    man.init(manTexture , MAN_FRAMES , MAN_CLIPS);
         enemySpawnTimer = 0;
         stageResetTimer = FRAME_PER_SECOND * 3;
 	}
@@ -53,6 +58,7 @@ struct GameLoop {
         enemyBulletTexture = graphics.loadTexture("egg.png");
         background = graphics.loadTexture("hallo.jpg");
         boomTexture = graphics.loadTexture("boom.png");
+        manTexture = graphics.loadTexture("SPRITE2.png");
         gJump = graphics.loadSound("jump.wav");
         newGame();
     }
@@ -95,7 +101,10 @@ struct GameLoop {
         if (keyboard[SDL_SCANCODE_W])player.dy = -PLAYER_SPEED;
         if (keyboard[SDL_SCANCODE_S]) player.dy = PLAYER_SPEED;
         if (keyboard[SDL_SCANCODE_A]) player.dx = -PLAYER_SPEED;
-        if (keyboard[SDL_SCANCODE_D]) player.dx = PLAYER_SPEED;
+        if (keyboard[SDL_SCANCODE_D]){
+            player.dx = PLAYER_SPEED;
+            man.tick();
+        }
         if (keyboard[SDL_SCANCODE_UP] && player.reload == 0){
             PLAYER_ATTACK();
             graphics.play(gJump);
@@ -223,6 +232,7 @@ struct GameLoop {
     {
         drawBackground(graphics.renderer);
         drawBoom(graphics);
+        graphics.render(100 , 500 , man);
 
 		for (GameObject* b: bullets)
             graphics.renderTexture(b->texture, b->x, b->y);

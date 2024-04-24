@@ -10,7 +10,7 @@
 using namespace std;
 
 struct GameObject {
-	int x,y,w,h;
+	int x , y , w , h;
     float dx , dy;
 	int side;
 	int health;
