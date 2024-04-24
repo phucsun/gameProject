@@ -2,6 +2,8 @@
 #define _DEFS__H
 
 #define WINDOW_TITLE "CHICKEN INVADERS!"
+
+
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 800
 
@@ -14,15 +16,11 @@
 #define SIDE_PLAYER 0
 #define SIDE_ALIEN  1
 
+#define POS_X 100
+#define POS_Y 600
+
 #define FRAME_PER_SECOND 60
 
 #define ENEMY_BULLET_SPEED    6
-
-#define MAX_STARS   8
-
-#define BG_COLOR_R 96
-#define BG_COLOR_G 128
-#define BG_COLOR_B 255
-#define BG_COLOR_A 255
 
 #endif

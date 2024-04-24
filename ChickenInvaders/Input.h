@@ -5,12 +5,12 @@
 struct Input {
     int keyboard[MAX_KEYBOARD_KEYS] = {0};
 
-	void init()
+	void initKeyBoard()
     {
         for (int i = 0; i < MAX_KEYBOARD_KEYS; i++) keyboard[i] = 0;
     }
 
-    void get() {
+    void getInput() {
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {

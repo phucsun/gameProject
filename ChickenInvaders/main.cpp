@@ -17,18 +17,19 @@ int main(int argc, char *argv[])
     graphics.init();
 
     Input input;
-    input.init();
-    Game game;
+    input.initKeyBoard();
+
+    GameLoop game;
     game.init(graphics);
 
-    while (1)
+    while (true)
 	{
 		graphics.prepareScene();
 
-		input.get();
+		input.getInput();
 
-		game.doLogic(input.keyboard , graphics);
-        game.draw(graphics);
+		game.playGame(input.keyboard , graphics);
+        game.drawGame(graphics);
 
 		graphics.presentScene();
 

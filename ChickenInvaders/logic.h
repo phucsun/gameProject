@@ -8,69 +8,35 @@
 #include "defs.h"
 #include "graphics.h"
 #include "GameObject.h"
+#include "Function.h"
 
-void initPlayer(Entity& player) {
-    player.x = SCREEN_WIDTH/2 - 50;
-    player.y = SCREEN_HEIGHT - 130;
-    player.health = 100;
-    player.side = SIDE_PLAYER;
-    player.reload = 0;
-}
+struct GameLoop {
 
-void calcSlope(int x1, int y1, int x2, int y2, float *dx, float *dy)
-{
-	int steps = max(abs(x1 - x2), abs(y1 - y2));
+    GameObject player;
+    list<GameObject*> bullets;
+	list<GameObject*> fighters;
 
-	if (steps == 0)
-	{
-		*dx = *dy = 0;
-		return;
-	}
-
-	*dx = (x1 - x2);
-	*dx /= steps;
-
-	*dy = (y1 - y2);
-	*dy /= steps;
-}
-
-struct Game {
-    Entity player;
-    list<Entity*> bullets;
-	list<Entity*> fighters;
-
-	Star stars[MAX_STARS];
-
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background, *rockTexture;
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background;
     Mix_Chunk *gJump;
+
     int enemySpawnTimer;
     int stageResetTimer;
 
-    int backgroundY = 0;
+    int backgroundX = 0;
 
-    void empty(list<Entity*>& entities) {
+    void clean(list<GameObject*>& entities) {
         while (!entities.empty()) {
-            Entity* e = entities.front();
+            GameObject* e = entities.front();
             entities.pop_front();
             if (e != &player) delete e;
         }
     }
-
-    void initStarfield(void) {
-        for (int i = 0 ; i < MAX_STARS ; i++)	{
-            stars[i].x = rand() % SCREEN_WIDTH;
-            stars[i].y = rand()%500-500;
-            stars[i].speed = rand()%4 +4 ;
-        }
-    }
-
-    void reset()
+    void newGame()
     {
-        empty(fighters);
-        empty(bullets);
+        clean(fighters);
+        clean(bullets);
         fighters.push_back(&player);
-	    initPlayer(player);
-	    initStarfield();
+	    player.initObject(POS_X , POS_Y , 1 , 0 , SIDE_PLAYER);
         enemySpawnTimer = 0;
         stageResetTimer = FRAME_PER_SECOND * 3;
 	}
@@ -83,71 +49,60 @@ struct Game {
         bulletTexture = graphics.loadTexture("arrow.png");
         enemyTexture = graphics.loadTexture("chickenwater.png");
         enemyBulletTexture = graphics.loadTexture("egg.png");
-        background = graphics.loadTexture("space2.png");
+        background = graphics.loadTexture("hallo.jpg");
         gJump = graphics.loadSound("jump.wav");
-        reset();
+        newGame();
     }
 
-    void fireBullet()
+    void PLAYER_ATTACK()
     {
-        Entity *bullet = new Entity();
+        GameObject *bullet = new GameObject();
         bullets.push_back(bullet);
-
-        bullet->x = player.x +40;
-        bullet->y = player.y;
-        bullet->y -= (player.h / 2) - (bullet->h / 2);
-        bullet->dy = -PLAYER_BULLET_SPEED;
-        bullet->health = 1;
         bullet->texture = bulletTexture;
-        bullet->side = SIDE_PLAYER;
         SDL_QueryTexture(bullet->texture, NULL, NULL, &bullet->w, &bullet->h);
 
+        bullet->initObject(player.x +40,player.y +88 - (player.h / 2) - (bullet->h / 2),1,0,SIDE_PLAYER);
+        bullet->dx = PLAYER_BULLET_SPEED;
         player.reload = PLAYER_RELOAD;
     }
 
-    void fireEnemyBullet(Entity* enemy)
+    void ENEMY_ATTACK(GameObject* enemy)
     {
-        Entity *bullet = new Entity();
+        GameObject *bullet = new GameObject();
         bullets.push_back(bullet);
-
-        bullet->x = enemy->x;
-        bullet->y = enemy->y;
-        bullet->health = 1;
         bullet->texture = enemyBulletTexture;
-        bullet->side = SIDE_ALIEN;
         SDL_QueryTexture(bullet->texture, NULL, NULL, &bullet->w, &bullet->h);
 
-        bullet->x += (enemy->w / 2) - (bullet->w / 2);
-        bullet->y += (enemy->h / 2) - (bullet->h / 2);
+        bullet->initObject(enemy->x + (enemy->w / 2) - (bullet->w / 2) ,enemy->y + (enemy->h / 2) - (bullet->h / 2) ,1,0,SIDE_ALIEN);
 
-        calcSlope(player.x + (player.w / 2), player.y + (player.h / 2) , enemy->x, enemy->y, &bullet->dx, &bullet->dy);
+        SlopeCalculation(player.x + (player.w / 2), player.y + (player.h / 2) , enemy->x, enemy->y, &bullet->dx, &bullet->dy);
         bullet->dx *= ENEMY_BULLET_SPEED;
         bullet->dy *= ENEMY_BULLET_SPEED;
 
         enemy->reload = (rand() % FRAME_PER_SECOND * 2);
     }
 
-    void doPlayer(int keyboard[] , Graphics graphics)
+    void handleEvents(int keyboard[] , Graphics graphics)
     {
         if (player.health == 0) return;
 
         player.dx = player.dy = 0;
 
         if (player.reload > 0) player.reload--;
-        if (keyboard[SDL_SCANCODE_W]) player.dy = -PLAYER_SPEED;
+        if (keyboard[SDL_SCANCODE_W])player.dy = -PLAYER_SPEED;
         if (keyboard[SDL_SCANCODE_S]) player.dy = PLAYER_SPEED;
         if (keyboard[SDL_SCANCODE_A]) player.dx = -PLAYER_SPEED;
         if (keyboard[SDL_SCANCODE_D]) player.dx = PLAYER_SPEED;
         if (keyboard[SDL_SCANCODE_UP] && player.reload == 0){
-            fireBullet();
+            PLAYER_ATTACK();
             graphics.play(gJump);
         }
     }
 
-    bool bulletHitFighter(Entity *b)
+    bool bulletHitFighter(GameObject *b)
     {
-        for (Entity* fighter: fighters) {
-            if (fighter->side != b->side && b->collides(fighter)) {
+        for (GameObject* fighter: fighters) {
+            if (fighter->side != b->side && b->checkCollision(fighter)) {
                 fighter->health = 0;
                 return true;
             }
@@ -155,12 +110,12 @@ struct Game {
         return false;
     }
 
-    void doBullets(void)
+    void doBullets()
     {
         auto it = bullets.begin();
         while (it != bullets.end()) {
             auto temp = it++;
-            Entity* b = *temp;
+            GameObject* b = *temp;
             b->move();
             if (bulletHitFighter(b) || b->offScreen()) {
                 delete b;
@@ -170,48 +125,45 @@ struct Game {
     }
 
     void doEnemies() {
-        for (Entity* e: fighters) {
+        for (GameObject* e: fighters) {
             if (e != &player && player.health != 0 && --e->reload <= 0)
-                fireEnemyBullet(e);
+                ENEMY_ATTACK(e);
         }
     }
 
     void spawnEnemies(void) {
 
         if (--enemySpawnTimer <= 0) {
-            Entity *enemy = new Entity();
+            GameObject *enemy = new GameObject();
             fighters.push_back(enemy);
-            enemy->x = rand() % SCREEN_WIDTH - 100;
-            enemy->y = rand() % SCREEN_HEIGHT - SCREEN_HEIGHT;
+            enemy->x = SCREEN_WIDTH;
+            enemy->y = rand() % SCREEN_HEIGHT;
+            enemy->dx = -(2 + (rand() % 4));
             enemy->health = 1;
-            enemy->dx=1;
-            enemy->dy=1;
-            enemy->moveDirection = 1;
             enemy->reload = FRAME_PER_SECOND * (1 + (rand() % 3));
             enemy->side = SIDE_ALIEN;
             enemy->texture = enemyTexture;
             SDL_QueryTexture(enemy->texture, NULL, NULL, &enemy->w, &enemy->h);
 
-            enemySpawnTimer = 60 + (rand() % 60);
+            enemySpawnTimer = 30 + (rand() % 60);
         }
     }
 
-    void doFighters(void)
+    void updateFighters(void)
     {
         auto it = fighters.begin();
         it++;
 
-        while (it != fighters.end()) {
-            auto temp = it++;
-            Entity* fighter = *temp;
+        for(auto it_ = it ; it_ != fighters.end() ;it_++) {
+            GameObject* enemy = *it_;
 
-            fighter->move_(bullets);
+            enemy->move();
 
-            if (fighter->x < -fighter->w) fighter->health = 0;
+            if (enemy->x < -enemy->w) enemy->health = 0;
 
-            if (fighter->health == 0) {
-                delete fighter;
-                fighters.erase(temp);
+            if (enemy->health == 0) {
+                delete enemy;
+                fighters.erase(it_);
                 continue;
             }
         }
@@ -225,71 +177,50 @@ struct Game {
             player.y = SCREEN_HEIGHT - player.h;
 	}
 
-	void doBackground(void) {
-        backgroundY += BACKGROUND_SCROLL_SPEED;
-        if (backgroundY >= SCREEN_HEIGHT) {
-            backgroundY = 0;
+	void scrollBackground(void) {
+        if (--backgroundX < -SCREEN_WIDTH)
+        {
+            backgroundX = 0;
         }
     }
 
+    void drawBackground(SDL_Renderer* renderer) {
+        SDL_Rect dest;
+        for (int x = backgroundX ; x < SCREEN_WIDTH ; x += SCREEN_WIDTH) {
+            dest.x = x;
+            dest.y = 0;
+            dest.w = SCREEN_WIDTH;
+            dest.h = SCREEN_HEIGHT;
 
-    void doStarfield(void) {
-        for (int i = 0; i < MAX_STARS; i++) {
-            stars[i].y += stars[i].speed;
-            if (stars[i].y > SCREEN_HEIGHT) {
-                stars[i].x = rand() % SCREEN_WIDTH;
-                stars[i].y = 0;
-            }
+            SDL_RenderCopy(renderer, background, NULL, &dest);
         }
     }
 
-    void doLogic(int keyboard[] , Graphics graphics) {
-        doBackground();
-        doStarfield();
+    void playGame(int keyboard[] , Graphics graphics) {
+        scrollBackground();
 
         if (player.health == 0 && --stageResetTimer <= 0){
-                reset();
+                newGame();
         }
 
-        doPlayer(keyboard , graphics);
-        doFighters();
+        handleEvents(keyboard , graphics);
+        updateFighters();
         doEnemies();
         doBullets();
         spawnEnemies();
     }
 
-    void drawBackground(SDL_Renderer* renderer) {
-        SDL_Rect dest;
-        dest.x = 0;
-        dest.y = backgroundY - SCREEN_HEIGHT;
-        dest.w = SCREEN_WIDTH;
-        dest.h = SCREEN_HEIGHT;
-
-        SDL_RenderCopy(renderer, background, NULL, &dest);
-
-        dest.y = backgroundY;
-        SDL_RenderCopy(renderer, background, NULL, &dest);
-    }
-
-    void drawStarfield(Graphics graphics) {
-		for (int i = 0 ; i < MAX_STARS ; i++) {
-            rockTexture = graphics.loadTexture("Rock4.png");
-            graphics.renderTexture(rockTexture , stars[i].x , stars[i].y);
-        }
-    }
-
-    void draw(Graphics& graphics)
+    void drawGame(Graphics& graphics)
     {
         drawBackground(graphics.renderer);
 
-        drawStarfield(graphics);
-
-		for (Entity* b: bullets)
+		for (GameObject* b: bullets)
             graphics.renderTexture(b->texture, b->x, b->y);
 
-        for (Entity* b: fighters)
-            if (b->health > 0)
+        for (GameObject* b: fighters)
+            if (b->health > 0){
                 graphics.renderTexture(b->texture, b->x, b->y);
+            }
     }
 };
 

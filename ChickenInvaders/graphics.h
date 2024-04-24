@@ -1,6 +1,7 @@
 #ifndef _GRAPHICS__H
 #define _GRAPHICS__H
 
+#include <vector>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
@@ -28,22 +29,6 @@ struct Sprite {
 
     const SDL_Rect* getCurrentClip() const {
         return &(clips[currentFrame]);
-    }
-};
-
-struct ScrollingBackground {
-    SDL_Texture* texture;
-    int scrollingOffset = 0;
-    int width, height;
-
-    void setTexture(SDL_Texture* _texture) {
-        texture = _texture;
-        SDL_QueryTexture(texture, NULL, NULL, &width, &height);
-    }
-
-    void scroll(int distance) {
-        scrollingOffset -= distance;
-        if( scrollingOffset < 0 ) { scrollingOffset = width; }
     }
 };
 
@@ -84,7 +69,7 @@ struct Graphics {
 
 	void prepareScene(void)
     {
-        SDL_SetRenderDrawColor(renderer, BG_COLOR_R, BG_COLOR_G, BG_COLOR_B, BG_COLOR_A);
+        SDL_SetRenderDrawColor(renderer, 96 , 128, 255, 255);
         SDL_RenderClear(renderer);
     }
 
