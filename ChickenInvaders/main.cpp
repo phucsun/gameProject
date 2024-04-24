@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
         game.drawGame(graphics);
 		graphics.presentScene();
 
-		SDL_Delay(15);
+		SDL_Delay(20);
 	}
 
     graphics.quit();

@@ -15,11 +15,13 @@ struct GameLoop {
     GameObject player;
     GameObject boom;
 
-    Sprite man;
+    Sprite TURN;
+    Sprite BACK;
     list<GameObject*> bullets;
 	list<GameObject*> fighters;
+	vector<Sprite*> animations;
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *manTexture;
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture;
     Mix_Chunk *gJump;
 
     int enemySpawnTimer;
@@ -34,6 +36,12 @@ struct GameLoop {
             if (e != &player) delete e;
         }
     }
+
+    void initAnimation(){
+        animations.push_back(&TURN);
+        animations.push_back(&BACK);
+    }
+
     void newGame()
     {
         clean(fighters);
@@ -43,9 +51,12 @@ struct GameLoop {
         fighters.push_back(&player);
 	    player.initObject(POS_X , POS_Y , 1 , 0 , SIDE_PLAYER);
 	    boom.initObject(player.x , 0 - (rand()%5)*15 , 1 , 0 , SIDE_ALIEN );
-	    man.init(manTexture , MAN_FRAMES , MAN_CLIPS);
+	    TURN.init(TURNTexture , TURN_FRAMES , TURN_CLIPS);
+	    BACK.init(BACKTexture , BACK_FRAMES , BACK_CLIPS);
+	    initAnimation();
         enemySpawnTimer = 0;
         stageResetTimer = FRAME_PER_SECOND * 3;
+
 	}
 
     void init(Graphics& graphics)
@@ -58,10 +69,12 @@ struct GameLoop {
         enemyBulletTexture = graphics.loadTexture("egg.png");
         background = graphics.loadTexture("hallo.jpg");
         boomTexture = graphics.loadTexture("boom.png");
-        manTexture = graphics.loadTexture("SPRITE2.png");
+        TURNTexture = graphics.loadTexture("ANIMATION.png");
+        BACKTexture = graphics.loadTexture("back_animation.png");
         gJump = graphics.loadSound("jump.wav");
         newGame();
     }
+
 
     void PLAYER_ATTACK()
     {
@@ -100,10 +113,15 @@ struct GameLoop {
         if (player.reload > 0) player.reload--;
         if (keyboard[SDL_SCANCODE_W])player.dy = -PLAYER_SPEED;
         if (keyboard[SDL_SCANCODE_S]) player.dy = PLAYER_SPEED;
-        if (keyboard[SDL_SCANCODE_A]) player.dx = -PLAYER_SPEED;
+        if (keyboard[SDL_SCANCODE_A]){
+            player.dx = -PLAYER_SPEED;
+            BACK.tick();
+            player.state = 1;
+        }
         if (keyboard[SDL_SCANCODE_D]){
             player.dx = PLAYER_SPEED;
-            man.tick();
+            player.state = 0;
+            TURN.tick();
         }
         if (keyboard[SDL_SCANCODE_UP] && player.reload == 0){
             PLAYER_ATTACK();
@@ -232,15 +250,18 @@ struct GameLoop {
     {
         drawBackground(graphics.renderer);
         drawBoom(graphics);
-        graphics.render(100 , 500 , man);
+
 
 		for (GameObject* b: bullets)
             graphics.renderTexture(b->texture, b->x, b->y);
 
         for (GameObject* b: fighters)
-            if (b->health > 0){
+            if (b->health > 0 and b->side == SIDE_ALIEN){
                 graphics.renderTexture(b->texture, b->x, b->y);
             }
+
+        if(player.state == 1 ) graphics.render(player.x , player.y ,*animations[1]);
+        if(player.state == 0 ) graphics.render(player.x , player.y ,*animations[0]);
     }
 };
 
