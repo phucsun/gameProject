@@ -13,16 +13,17 @@
 struct GameLoop {
 
     GameObject player;
+    GameObject boom;
     list<GameObject*> bullets;
 	list<GameObject*> fighters;
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background;
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture;
     Mix_Chunk *gJump;
 
     int enemySpawnTimer;
     int stageResetTimer;
 
-    int backgroundX = 0;
+    int backgroundX=0;
 
     void clean(list<GameObject*>& entities) {
         while (!entities.empty()) {
@@ -37,6 +38,7 @@ struct GameLoop {
         clean(bullets);
         fighters.push_back(&player);
 	    player.initObject(POS_X , POS_Y , 1 , 0 , SIDE_PLAYER);
+	    boom.initObject(player.x , 0 - (rand()%5)*15 , 1 , 0 , SIDE_ALIEN );
         enemySpawnTimer = 0;
         stageResetTimer = FRAME_PER_SECOND * 3;
 	}
@@ -50,6 +52,7 @@ struct GameLoop {
         enemyTexture = graphics.loadTexture("chickenwater.png");
         enemyBulletTexture = graphics.loadTexture("egg.png");
         background = graphics.loadTexture("hallo.jpg");
+        boomTexture = graphics.loadTexture("boom.png");
         gJump = graphics.loadSound("jump.wav");
         newGame();
     }
@@ -136,16 +139,16 @@ struct GameLoop {
         if (--enemySpawnTimer <= 0) {
             GameObject *enemy = new GameObject();
             fighters.push_back(enemy);
-            enemy->x = SCREEN_WIDTH;
+            enemy->x = SCREEN_WIDTH +(rand()%3)*enemy->w;
             enemy->y = rand() % SCREEN_HEIGHT;
-            enemy->dx = -(2 + (rand() % 4));
+            enemy->dx = -1;
             enemy->health = 1;
             enemy->reload = FRAME_PER_SECOND * (1 + (rand() % 3));
             enemy->side = SIDE_ALIEN;
             enemy->texture = enemyTexture;
             SDL_QueryTexture(enemy->texture, NULL, NULL, &enemy->w, &enemy->h);
 
-            enemySpawnTimer = 30 + (rand() % 60);
+            enemySpawnTimer = 200 + (rand() % 60);
         }
     }
 
@@ -177,13 +180,6 @@ struct GameLoop {
             player.y = SCREEN_HEIGHT - player.h;
 	}
 
-	void scrollBackground(void) {
-        if (--backgroundX < -SCREEN_WIDTH)
-        {
-            backgroundX = 0;
-        }
-    }
-
     void drawBackground(SDL_Renderer* renderer) {
         SDL_Rect dest;
         for (int x = backgroundX ; x < SCREEN_WIDTH ; x += SCREEN_WIDTH) {
@@ -196,9 +192,18 @@ struct GameLoop {
         }
     }
 
-    void playGame(int keyboard[] , Graphics graphics) {
-        scrollBackground();
+    void upadteBoom(void) {
+        boom.y += 12;
 
+        if (boom.y >= SCREEN_HEIGHT)
+        {
+            boom.x = player.x;
+            boom.y = 0 + boom.y - SCREEN_HEIGHT;
+        }
+    }
+
+    void playGame(int keyboard[] , Graphics graphics) {
+        upadteBoom();
         if (player.health == 0 && --stageResetTimer <= 0){
                 newGame();
         }
@@ -210,9 +215,14 @@ struct GameLoop {
         spawnEnemies();
     }
 
+    void drawBoom(Graphics graphics) {
+        graphics.renderTexture(boomTexture,boom.x,boom.y);
+    }
+
     void drawGame(Graphics& graphics)
     {
         drawBackground(graphics.renderer);
+        drawBoom(graphics);
 
 		for (GameObject* b: bullets)
             graphics.renderTexture(b->texture, b->x, b->y);

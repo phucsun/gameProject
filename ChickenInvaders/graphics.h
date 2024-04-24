@@ -32,7 +32,6 @@ struct Sprite {
     }
 };
 
-
 struct Graphics {
     SDL_Renderer *renderer;
 	SDL_Window *window;
