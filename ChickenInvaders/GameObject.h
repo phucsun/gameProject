@@ -21,6 +21,7 @@ struct GameObject {
 
 	bool checkCollision(GameObject* other);
 
+    void player_move();
 	void move();
 
     void AI_move(list<GameObject*>& bullets);

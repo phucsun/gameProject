@@ -21,8 +21,9 @@ struct GameLoop {
 	list<GameObject*> fighters;
 	vector<Sprite*> animations;
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture;
-    Mix_Chunk *gJump;
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture;
+    Mix_Chunk *gShoot;
+    Mix_Music *gMusic;
 
     int enemySpawnTimer;
     int stageResetTimer;
@@ -46,6 +47,9 @@ struct GameLoop {
     {
         clean(fighters);
         clean(bullets);
+// xóa animation
+//        if (gMusic != nullptr) Mix_FreeMusic( gMusic );
+//    if (gJump != nullptr) Mix_FreeChunk( gJump);
 //        SDL_DestroyTexture( manTexture );
 //        manTexture = nullptr;
         fighters.push_back(&player);
@@ -54,6 +58,7 @@ struct GameLoop {
 	    TURN.init(TURNTexture , TURN_FRAMES , TURN_CLIPS);
 	    BACK.init(BACKTexture , BACK_FRAMES , BACK_CLIPS);
 	    initAnimation();
+	    player.state = -1;
         enemySpawnTimer = 0;
         stageResetTimer = FRAME_PER_SECOND * 3;
 
@@ -63,7 +68,7 @@ struct GameLoop {
     {
         player.texture = graphics.loadTexture("rocket4.png");
         SDL_QueryTexture(player.texture, NULL, NULL, &player.w, &player.h);
-
+        wizardTexture = graphics.loadTexture("wizard_.png");
         bulletTexture = graphics.loadTexture("arrow.png");
         enemyTexture = graphics.loadTexture("chickenwater.png");
         enemyBulletTexture = graphics.loadTexture("egg.png");
@@ -71,7 +76,8 @@ struct GameLoop {
         boomTexture = graphics.loadTexture("boom.png");
         TURNTexture = graphics.loadTexture("ANIMATION.png");
         BACKTexture = graphics.loadTexture("back_animation.png");
-        gJump = graphics.loadSound("jump.wav");
+        gShoot = graphics.loadSound("jump.wav");
+        gMusic = graphics.loadMusic("RunningAway.mp3");
         newGame();
     }
 
@@ -101,7 +107,7 @@ struct GameLoop {
         bullet->dx *= ENEMY_BULLET_SPEED;
         bullet->dy *= ENEMY_BULLET_SPEED;
 
-        enemy->reload = (rand() % FRAME_PER_SECOND * 2);
+        enemy->reload = (rand() % FRAME_PER_SECOND *2);
     }
 
     void handleEvents(int keyboard[] , Graphics graphics)
@@ -125,8 +131,24 @@ struct GameLoop {
         }
         if (keyboard[SDL_SCANCODE_UP] && player.reload == 0){
             PLAYER_ATTACK();
-            graphics.play(gJump);
+            player.state = -1;
+
+            graphics.play(gShoot);
         }
+    }
+
+    bool playerCollideEnemy(GameObject* player){
+        auto it = fighters.begin();
+        it++;
+
+        for(auto it_ = it ; it_ != fighters.end() ;it_++) {
+            GameObject* enemy = *it_;
+            if(enemy -> checkCollision(player)){
+                (*player). health =0;
+                return true;
+            }
+        }
+        return true;
     }
 
     bool bulletHitFighter(GameObject *b)
@@ -154,6 +176,13 @@ struct GameLoop {
         }
     }
 
+    void doCollision()
+    {
+        if(playerCollideEnemy(&player)){
+            return;
+        }
+    }
+
     void doEnemies() {
         for (GameObject* e: fighters) {
             if (e != &player && player.health != 0 && --e->reload <= 0)
@@ -167,7 +196,7 @@ struct GameLoop {
             GameObject *enemy = new GameObject();
             fighters.push_back(enemy);
             enemy->x = SCREEN_WIDTH +(rand()%3)*enemy->w;
-            enemy->y = rand() % SCREEN_HEIGHT;
+            enemy->y = (rand() % (630-270)) +270-62;
             enemy->dx = -1;
             enemy->health = 1;
             enemy->reload = FRAME_PER_SECOND * (1 + (rand() % 3));
@@ -198,7 +227,7 @@ struct GameLoop {
             }
         }
 
-        player.move();
+        player.player_move();
         if (player.x < 0) player.x = 0;
         else if (player.x >= SCREEN_WIDTH - player.w)
             player.x = SCREEN_WIDTH - player.w;
@@ -230,6 +259,7 @@ struct GameLoop {
     }
 
     void playGame(int keyboard[] , Graphics graphics) {
+        graphics.play(gMusic);
         upadteBoom();
         if (player.health == 0 && --stageResetTimer <= 0){
                 newGame();
@@ -239,6 +269,7 @@ struct GameLoop {
         updateFighters();
         doEnemies();
         doBullets();
+        doCollision();
         spawnEnemies();
     }
 
@@ -262,6 +293,7 @@ struct GameLoop {
 
         if(player.state == 1 ) graphics.render(player.x , player.y ,*animations[1]);
         if(player.state == 0 ) graphics.render(player.x , player.y ,*animations[0]);
+        if(player.state == -1 ) graphics.renderTexture(wizardTexture , player.x , player.y);
     }
 };
 
