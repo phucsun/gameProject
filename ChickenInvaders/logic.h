@@ -47,7 +47,7 @@ struct GameLoop {
     {
         clean(fighters);
         clean(bullets);
-// xóa animation
+// xÃ³a animation
 //        if (gMusic != nullptr) Mix_FreeMusic( gMusic );
 //    if (gJump != nullptr) Mix_FreeChunk( gJump);
 //        SDL_DestroyTexture( manTexture );
@@ -59,6 +59,10 @@ struct GameLoop {
 	    BACK.init(BACKTexture , BACK_FRAMES , BACK_CLIPS);
 	    initAnimation();
 	    player.state = -1;
+	    player.score = 0;
+	    boom.health = 1;
+	    boom.w = 55;
+	    boom.h = 40;
         enemySpawnTimer = 0;
         stageResetTimer = FRAME_PER_SECOND * 3;
 
@@ -137,24 +141,19 @@ struct GameLoop {
         }
     }
 
-    bool playerCollideEnemy(GameObject* player){
-        auto it = fighters.begin();
-        it++;
-
-        for(auto it_ = it ; it_ != fighters.end() ;it_++) {
-            GameObject* enemy = *it_;
-            if(enemy -> checkCollision(player)){
-                (*player). health =0;
-                return true;
-            }
+    bool playerCollideObject(GameObject* player , GameObject* object){
+        if(player->checkCollision(object)){
+            player->health = 0;
+            return true;
         }
-        return true;
+        return false;
     }
 
     bool bulletHitFighter(GameObject *b)
     {
         for (GameObject* fighter: fighters) {
             if (fighter->side != b->side && b->checkCollision(fighter)) {
+                player.score+=10;
                 fighter->health = 0;
                 return true;
             }
@@ -176,10 +175,22 @@ struct GameLoop {
         }
     }
 
-    void doCollision()
-    {
-        if(playerCollideEnemy(&player)){
-            return;
+    void doCollision_Enemy(){
+        auto it = fighters.begin();
+        it++;
+
+        for(auto it_ = it ; it_ != fighters.end() ;it_++) {
+            GameObject* enemy = *it_;
+
+            if(playerCollideObject(&player , enemy)){
+                it_ = fighters.erase(it_);
+            }
+        }
+    }
+
+    void doCollision_Boom(GameObject& Boom){
+        if(playerCollideObject(&player,&Boom)){
+            Boom.health = 0 ;
         }
     }
 
@@ -191,7 +202,6 @@ struct GameLoop {
     }
 
     void spawnEnemies(void) {
-
         if (--enemySpawnTimer <= 0) {
             GameObject *enemy = new GameObject();
             fighters.push_back(enemy);
@@ -262,6 +272,7 @@ struct GameLoop {
         graphics.play(gMusic);
         upadteBoom();
         if (player.health == 0 && --stageResetTimer <= 0){
+                cerr<<player.score<<endl;
                 newGame();
         }
 
@@ -269,12 +280,13 @@ struct GameLoop {
         updateFighters();
         doEnemies();
         doBullets();
-        doCollision();
+        doCollision_Boom(boom);
+        doCollision_Enemy();
         spawnEnemies();
     }
 
     void drawBoom(Graphics graphics) {
-        graphics.renderTexture(boomTexture,boom.x,boom.y);
+        if(boom.health!=0)graphics.renderTexture(boomTexture,boom.x,boom.y);
     }
 
     void drawGame(Graphics& graphics)
@@ -287,7 +299,7 @@ struct GameLoop {
             graphics.renderTexture(b->texture, b->x, b->y);
 
         for (GameObject* b: fighters)
-            if (b->health > 0 and b->side == SIDE_ALIEN){
+            if (b->health > 0){// and b->side == SIDE_ALIEN){
                 graphics.renderTexture(b->texture, b->x, b->y);
             }
 
