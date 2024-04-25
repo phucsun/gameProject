@@ -81,7 +81,7 @@ struct GameLoop {
         TURNTexture = graphics.loadTexture("ANIMATION.png");
         BACKTexture = graphics.loadTexture("back_animation.png");
         gShoot = graphics.loadSound("jump.wav");
-        gMusic = graphics.loadMusic("RunningAway.mp3");
+        gMusic = graphics.loadMusic("gamemusic.mp3");
         newGame();
     }
 
@@ -299,13 +299,13 @@ struct GameLoop {
             graphics.renderTexture(b->texture, b->x, b->y);
 
         for (GameObject* b: fighters)
-            if (b->health > 0){// and b->side == SIDE_ALIEN){
+            if (b->health > 0 and b->side == SIDE_ALIEN){
                 graphics.renderTexture(b->texture, b->x, b->y);
             }
 
-        if(player.state == 1 ) graphics.render(player.x , player.y ,*animations[1]);
-        if(player.state == 0 ) graphics.render(player.x , player.y ,*animations[0]);
-        if(player.state == -1 ) graphics.renderTexture(wizardTexture , player.x , player.y);
+        if(player.state == 1 and player.health!=0 ) graphics.render(player.x , player.y ,*animations[1]);
+        if(player.state == 0 and player.health!=0) graphics.render(player.x , player.y ,*animations[0]);
+        if(player.state == -1 and player.health!=0) graphics.renderTexture(wizardTexture , player.x , player.y);
     }
 };
 
