@@ -13,14 +13,23 @@
 #define BACK_STATE  4
 #define ATTACK_STATE 9
 #define STAND_STATE 0
+
+#define LIVE_STATE 0
+#define DIE_STATE -1
+
 #define BOOM_SPEED 12
 #define BOOM_HEIGHT 53
 #define BOOM_WIDTH 36
 
-#define PLAYER_SPEED          6
+
+#define PLAYER_SPEED          10
 #define PLAYER_BULLET_SPEED   16
 #define PLAYER_RELOAD          20
 #define MAX_KEYBOARD_KEYS 350
+
+#define MENU_STATE 1
+#define PLAY_STATE 2
+#define END_STATE 0
 
 #define SIDE_PLAYER 0
 #define SIDE_ALIEN  1
@@ -31,6 +40,14 @@
 #define FRAME_PER_SECOND 60
 
 #define ENEMY_BULLET_SPEED    4
+const int EX_CLIPS[][4] = {
+    {  0, 0, 90, 90},
+    {90, 0, 90, 90},
+    {180, 0, 90, 90},
+    {270, 0, 90, 90},
+    {360,  0, 90, 90}};
+
+const int EX_FRAMES = sizeof(EX_CLIPS)/sizeof(int)/4;
 
 const int BACK_CLIPS[][4] = {
     {  0, 0, 150, 140},

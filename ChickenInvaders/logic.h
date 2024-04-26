@@ -13,6 +13,8 @@
 
 struct GameLoop {
 
+    int gameState = MENU_STATE;
+
     GameObject player;
     GameObject boom;
 
@@ -65,9 +67,9 @@ struct GameLoop {
 	    TURN.init(TURNTexture , TURN_FRAMES , TURN_CLIPS);
 	    BACK.init(BACKTexture , BACK_FRAMES , BACK_CLIPS);
 	    SHOOTING.init(SHOOTTexture , SHOOT_FRAMES , SHOOT_CLIPS);
-	    hp.initHeart(10,10,300,50);
+	    hp.initHeart(10,10,300,25);
 	    initAnimation();
-	    player.state = 0;
+	    player.state = STAND_STATE;
 	    player.score = 0;
 	    boom.health = 1;
 	    boom.w = BOOM_WIDTH;
@@ -167,7 +169,7 @@ struct GameLoop {
 
     bool playerCollideObject(GameObject* player , GameObject* object){
         if(player->checkCollision(object)){
-            player->health = 0;
+            player->health =0;
             return true;
         }
         return false;
@@ -238,7 +240,7 @@ struct GameLoop {
             enemy->texture = enemyTexture;
             SDL_QueryTexture(enemy->texture, NULL, NULL, &enemy->w, &enemy->h);
 
-            enemySpawnTimer = 200 + (rand() % 60);
+            enemySpawnTimer = 100    + (rand() % 60);
         }
     }
 

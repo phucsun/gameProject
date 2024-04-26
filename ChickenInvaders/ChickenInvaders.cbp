@@ -42,6 +42,7 @@
 		<Unit filename="heart.h" />
 		<Unit filename="logic.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="menu.h" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
