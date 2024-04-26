@@ -133,7 +133,7 @@
 	<SDL_image.h>
 	"defs.h"
 
-1714029639 d:\gameproject\chickeninvaders\defs.h
+1714104208 d:\gameproject\chickeninvaders\defs.h
 
 1714012336 d:\gameproject\chickeninvaders\graphics.h
 	<vector>
@@ -222,7 +222,7 @@
 	<SDL_image.h>
 	"SpaceShip.h"
 
-1714027827 source:d:\gameproject\chickeninvaders\main.cpp
+1714105608 source:d:\gameproject\chickeninvaders\main.cpp
 	<iostream>
 	<SDL.h>
 	<SDL_image.h>
@@ -238,7 +238,7 @@
 	"defs.h"
 	"GameObject.h"
 
-1714033008 d:\gameproject\chickeninvaders\logic.h
+1714106109 d:\gameproject\chickeninvaders\logic.h
 	<iostream>
 	<list>
 	<SDL.h>
@@ -248,6 +248,7 @@
 	"graphics.h"
 	"GameObject.h"
 	"Function.h"
+	"heart.h"
 
 1713898065 source:d:\gameproject\chickeninvaders\input.cpp
 	<SDL.h>
@@ -261,5 +262,10 @@
 	"defs.h"
 
 1714014594 source:d:\gameproject\chickeninvaders\gameobject.cpp
+	"GameObject.h"
+
+1714045286 d:\gameproject\chickeninvaders\heart.h
+	"defs.h"
+	"graphics.h"
 	"GameObject.h"
 

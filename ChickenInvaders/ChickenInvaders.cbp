@@ -39,6 +39,7 @@
 		<Unit filename="Input.h" />
 		<Unit filename="defs.h" />
 		<Unit filename="graphics.h" />
+		<Unit filename="heart.h" />
 		<Unit filename="logic.h" />
 		<Unit filename="main.cpp" />
 		<Extensions />

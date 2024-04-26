@@ -9,6 +9,7 @@
 #include "graphics.h"
 #include "GameObject.h"
 #include "Function.h"
+#include "heart.h"
 
 struct GameLoop {
 
@@ -17,18 +18,23 @@ struct GameLoop {
 
     Sprite TURN;
     Sprite BACK;
+    Sprite SHOOTING;
+
+    Heart hp;
     list<GameObject*> bullets;
 	list<GameObject*> fighters;
 	vector<Sprite*> animations;
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture;
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture ,*UPTexture , *DOWNTexture , *SHOOTTexture;
     Mix_Chunk *gShoot;
     Mix_Music *gMusic;
+
 
     int enemySpawnTimer;
     int stageResetTimer;
 
     int backgroundX=0;
+    bool collisionHandled = false;
 
     void clean(list<GameObject*>& entities) {
         while (!entities.empty()) {
@@ -41,6 +47,7 @@ struct GameLoop {
     void initAnimation(){
         animations.push_back(&TURN);
         animations.push_back(&BACK);
+        animations.push_back(&SHOOTING);
     }
 
     void newGame()
@@ -53,15 +60,17 @@ struct GameLoop {
 //        SDL_DestroyTexture( manTexture );
 //        manTexture = nullptr;
         fighters.push_back(&player);
-	    player.initObject(POS_X , POS_Y , 1 , 0 , SIDE_PLAYER);
+	    player.initObject(POS_X , POS_Y , 10 , 0 , SIDE_PLAYER);
 	    boom.initObject(player.x , 0 - (rand()%5)*15 , 1 , 0 , SIDE_ALIEN );
 	    TURN.init(TURNTexture , TURN_FRAMES , TURN_CLIPS);
 	    BACK.init(BACKTexture , BACK_FRAMES , BACK_CLIPS);
+	    SHOOTING.init(SHOOTTexture , SHOOT_FRAMES , SHOOT_CLIPS);
+	    hp.initHeart(10,10,300,50);
 	    initAnimation();
-	    player.state = -1;
+	    player.state = 0;
 	    player.score = 0;
 	    boom.health = 1;
-	    boom.w = 55;
+	    boom.w = 30;
 	    boom.h = 40;
         enemySpawnTimer = 0;
         stageResetTimer = FRAME_PER_SECOND * 3;
@@ -70,16 +79,19 @@ struct GameLoop {
 
     void init(Graphics& graphics)
     {
-        player.texture = graphics.loadTexture("rocket4.png");
+        player.texture = graphics.loadTexture("face.png");
         SDL_QueryTexture(player.texture, NULL, NULL, &player.w, &player.h);
-        wizardTexture = graphics.loadTexture("wizard_.png");
+        wizardTexture = graphics.loadTexture("face.png");
         bulletTexture = graphics.loadTexture("arrow.png");
         enemyTexture = graphics.loadTexture("chickenwater.png");
         enemyBulletTexture = graphics.loadTexture("egg.png");
         background = graphics.loadTexture("hallo.jpg");
         boomTexture = graphics.loadTexture("boom.png");
-        TURNTexture = graphics.loadTexture("ANIMATION.png");
-        BACKTexture = graphics.loadTexture("back_animation.png");
+        TURNTexture = graphics.loadTexture("move.png");
+        BACKTexture = graphics.loadTexture("back.png");
+        SHOOTTexture = graphics.loadTexture("shooting.png");
+        UPTexture = graphics.loadTexture("Up.png");
+        DOWNTexture = graphics.loadTexture("Down.png");
         gShoot = graphics.loadSound("jump.wav");
         gMusic = graphics.loadMusic("gamemusic.mp3");
         newGame();
@@ -116,28 +128,40 @@ struct GameLoop {
 
     void handleEvents(int keyboard[] , Graphics graphics)
     {
+        bool keyPRESSED = false;
         if (player.health == 0) return;
 
         player.dx = player.dy = 0;
 
         if (player.reload > 0) player.reload--;
-        if (keyboard[SDL_SCANCODE_W])player.dy = -PLAYER_SPEED;
-        if (keyboard[SDL_SCANCODE_S]) player.dy = PLAYER_SPEED;
+        if (keyboard[SDL_SCANCODE_W]){
+            player.dy = -PLAYER_SPEED;
+            player.state = UP_STATE;
+            keyPRESSED = true;
+        }
+        if (keyboard[SDL_SCANCODE_S]){
+            player.dy = PLAYER_SPEED;
+            player.state = DOWN_STATE;
+            keyPRESSED = true;
+        }
         if (keyboard[SDL_SCANCODE_A]){
             player.dx = -PLAYER_SPEED;
             BACK.tick();
-            player.state = 1;
+            player.state = BACK_STATE;
+            keyPRESSED = true;
         }
         if (keyboard[SDL_SCANCODE_D]){
             player.dx = PLAYER_SPEED;
-            player.state = 0;
+            player.state = TURN_STATE;
             TURN.tick();
+            keyPRESSED = true;
         }
         if (keyboard[SDL_SCANCODE_UP] && player.reload == 0){
-            PLAYER_ATTACK();
-            player.state = -1;
-
-            graphics.play(gShoot);
+            if(player.state != BACK_STATE and !keyPRESSED){
+                PLAYER_ATTACK();
+                player.state = ATTACK_STATE;
+                graphics.play(gShoot);
+            }
         }
     }
 
@@ -259,7 +283,7 @@ struct GameLoop {
     }
 
     void upadteBoom(void) {
-        boom.y += 12;
+        boom.y += BOOM_SPEED;
 
         if (boom.y >= SCREEN_HEIGHT)
         {
@@ -294,6 +318,7 @@ struct GameLoop {
         drawBackground(graphics.renderer);
         drawBoom(graphics);
 
+        hp.drawHp(graphics);
 
 		for (GameObject* b: bullets)
             graphics.renderTexture(b->texture, b->x, b->y);
@@ -303,9 +328,37 @@ struct GameLoop {
                 graphics.renderTexture(b->texture, b->x, b->y);
             }
 
-        if(player.state == 1 and player.health!=0 ) graphics.render(player.x , player.y ,*animations[1]);
-        if(player.state == 0 and player.health!=0) graphics.render(player.x , player.y ,*animations[0]);
-        if(player.state == -1 and player.health!=0) graphics.renderTexture(wizardTexture , player.x , player.y);
+        if(player.state == UP_STATE and player.health!=0) graphics.renderTexture(UPTexture , player.x , player.y);
+        if(player.state == DOWN_STATE and player.health!=0) graphics.renderTexture(UPTexture , player.x , player.y);
+        if(player.state == STAND_STATE and player.health !=0) graphics.renderTexture(player.texture , player.x , player.y);
+        if(player.state == BACK_STATE and player.health!=0 ) graphics.render(player.x , player.y ,*animations[1]);
+        if(player.state == TURN_STATE and player.health!=0) graphics.render(player.x , player.y ,*animations[0]);
+        if (player.state == ATTACK_STATE && player.health != 0) {
+            static int frameCount = 0;
+            const int FRAME_DELAY = 15;
+
+            for (int i = 1; i <= 5; i++) {
+                drawBackground(graphics.renderer);
+                drawBoom(graphics);
+
+                hp.drawHp(graphics);
+
+                for (GameObject* b: bullets)
+                    graphics.renderTexture(b->texture, b->x, b->y);
+
+                for (GameObject* b: fighters)
+                    if (b->health > 0 and b->side == SIDE_ALIEN){
+                        graphics.renderTexture(b->texture, b->x, b->y);
+                    }
+                graphics.render(player.x, player.y, *animations[2]);
+                if (frameCount >= FRAME_DELAY) {
+                    SHOOTING.tick();
+                    frameCount = 0;
+                }
+                frameCount++;
+            }
+        }
+
     }
 };
 
