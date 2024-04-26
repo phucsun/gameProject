@@ -70,8 +70,8 @@ struct GameLoop {
 	    player.state = 0;
 	    player.score = 0;
 	    boom.health = 1;
-	    boom.w = 30;
-	    boom.h = 40;
+	    boom.w = BOOM_WIDTH;
+	    boom.h = BOOM_HEIGHT;
         enemySpawnTimer = 0;
         stageResetTimer = FRAME_PER_SECOND * 3;
 

@@ -1,11 +1,11 @@
 #ifndef _DEFS__H
 #define _DEFS__H
 
-#define WINDOW_TITLE "CHICKEN INVADERS!"
+#define WINDOW_TITLE "WIZARD!"
 
 
-#define SCREEN_WIDTH 1600
-#define SCREEN_HEIGHT 800
+#define SCREEN_WIDTH 1550
+#define SCREEN_HEIGHT 820
 
 #define UP_STATE 8
 #define DOWN_STATE 5
@@ -14,6 +14,8 @@
 #define ATTACK_STATE 9
 #define STAND_STATE 0
 #define BOOM_SPEED 12
+#define BOOM_HEIGHT 53
+#define BOOM_WIDTH 36
 
 #define PLAYER_SPEED          6
 #define PLAYER_BULLET_SPEED   16
