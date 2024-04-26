@@ -105,7 +105,7 @@ struct GameLoop {
         bullet->texture = bulletTexture;
         SDL_QueryTexture(bullet->texture, NULL, NULL, &bullet->w, &bullet->h);
 
-        bullet->initObject(player.x +40,player.y +88 - (player.h / 2) - (bullet->h / 2),1,0,SIDE_PLAYER);
+        bullet->initObject(player.x + player.w , player.y + player.h / 2,1,0,SIDE_PLAYER);
         bullet->dx = PLAYER_BULLET_SPEED;
         player.reload = PLAYER_RELOAD;
     }
