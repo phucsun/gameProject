@@ -133,9 +133,9 @@
 	<SDL_image.h>
 	"defs.h"
 
-1714213213 d:\gameproject\chickeninvaders\defs.h
+1714235060 d:\gameproject\chickeninvaders\defs.h
 
-1714012336 d:\gameproject\chickeninvaders\graphics.h
+1714232072 d:\gameproject\chickeninvaders\graphics.h
 	<vector>
 	<SDL.h>
 	<SDL_image.h>
@@ -239,12 +239,13 @@
 	"defs.h"
 	"GameObject.h"
 
-1714229302 d:\gameproject\chickeninvaders\logic.h
+1714234277 d:\gameproject\chickeninvaders\logic.h
 	<iostream>
 	<list>
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_mixer.h>
+	"SDL_ttf.h"
 	"defs.h"
 	"graphics.h"
 	"GameObject.h"

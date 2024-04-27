@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
+#include "SDL_ttf.h"
 #include "defs.h"
 #include "graphics.h"
 #include "GameObject.h"
@@ -29,11 +30,13 @@ struct GameLoop {
 	list<GameObject*> fighters;
 	vector<Sprite*> animations;
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture ,*deadTexture;
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture ,*deadTexture ,*scoreTexture;
     Mix_Chunk *gShoot;
     Mix_Music *gMusic;
     Mix_Chunk *gExploision;
+    TTF_Font* font;
 
+    SDL_Color color = {255, 255, 0, 0};
 
     int enemySpawnTimer;
     int stageResetTimer;
@@ -102,6 +105,7 @@ struct GameLoop {
         gShoot = graphics.loadSound("jump.wav");
         gMusic = graphics.loadMusic("gamemusic.mp3");
         gExploision = graphics.loadSound("jump.wav");
+        font = graphics.loadFont("Space Nation.ttf", 30);
         deadTexture = graphics.loadTexture("dead.png");
         newGame();
     }
@@ -243,7 +247,7 @@ struct GameLoop {
             GameObject *enemy = new GameObject();
             fighters.push_back(enemy);
             enemy->x = SCREEN_WIDTH +(rand()%3)*enemy->w;
-            enemy->y = (rand() % (630-270)) +270-62;
+            enemy->y = (rand() % 360) + 220;
             enemy->dx = -1;
             enemy->health = 1;
             enemy->reload = FRAME_PER_SECOND * (1 + (rand() % 3));
@@ -321,6 +325,7 @@ struct GameLoop {
         if (player.state == SKILL_STATE && player.health != 0) {
             for (GameObject *enemy : fighters) {
                 if (enemy->side == SIDE_ALIEN) {
+                    player.score+=10;
                     enemy->health = 0;
                 }
             }
@@ -390,7 +395,7 @@ struct GameLoop {
         if(player.state == SKILL_STATE and player.health !=0){
             static int frameCount = 0;
             const int FRAME_DELAY = 10;
-            const int SKILL_DURATION = 20;
+            const int SKILL_DURATION = 30;
 
             for (int i = 1; i <= 6; i++) {
                 graphics.render(player.x, player.y, *animations[4]);
@@ -409,7 +414,10 @@ struct GameLoop {
                 waitTime++;
             }
         }
-
+        string scoreText = "Score: " + to_string(player.score);
+        scoreTexture = graphics.renderText(scoreText.c_str(), font, color);
+        graphics.renderTexture(scoreTexture, SCREEN_WIDTH - 300 , 20);
+        SDL_DestroyTexture(scoreTexture);
     }
 };
 
