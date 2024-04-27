@@ -17,7 +17,7 @@
 #define LIVE_STATE 0
 #define DIE_STATE -1
 
-#define BOOM_SPEED 12
+#define BOOM_SPEED 15
 #define BOOM_HEIGHT 53
 #define BOOM_WIDTH 36
 
@@ -40,12 +40,12 @@
 #define FRAME_PER_SECOND 60
 
 #define ENEMY_BULLET_SPEED    4
+
 const int EX_CLIPS[][4] = {
-    {  0, 0, 90, 90},
-    {90, 0, 90, 90},
-    {180, 0, 90, 90},
-    {270, 0, 90, 90},
-    {360,  0, 90, 90}};
+    {  40, 60, 81, 57},
+    {150 , 20, 149, 146},
+    {300, 20, 151, 140},
+    {500, 40, 127, 123}};
 
 const int EX_FRAMES = sizeof(EX_CLIPS)/sizeof(int)/4;
 

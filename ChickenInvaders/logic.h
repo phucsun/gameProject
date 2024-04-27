@@ -21,15 +21,17 @@ struct GameLoop {
     Sprite TURN;
     Sprite BACK;
     Sprite SHOOTING;
+    Sprite exploision;
 
     Heart hp;
     list<GameObject*> bullets;
 	list<GameObject*> fighters;
 	vector<Sprite*> animations;
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture ,*UPTexture , *DOWNTexture , *SHOOTTexture;
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture;
     Mix_Chunk *gShoot;
     Mix_Music *gMusic;
+    Mix_Chunk *gExploision;
 
 
     int enemySpawnTimer;
@@ -50,23 +52,37 @@ struct GameLoop {
         animations.push_back(&TURN);
         animations.push_back(&BACK);
         animations.push_back(&SHOOTING);
+        animations.push_back(&exploision);
     }
 
+//    void cleanUp() {
+//        SDL_DestroyTexture(player.texture);
+//        SDL_DestroyTexture(bulletTexture);
+//        SDL_DestroyTexture(enemyTexture);
+//        SDL_DestroyTexture(enemyBulletTexture);
+//        SDL_DestroyTexture(background);
+//        SDL_DestroyTexture(boomTexture);
+//        SDL_DestroyTexture(TURNTexture);
+//        SDL_DestroyTexture(BACKTexture);
+//        SDL_DestroyTexture(exploreTexture);
+//        SDL_DestroyTexture(SHOOTTexture);
+//        SDL_DestroyTexture(UPTexture);
+//        SDL_DestroyTexture(DOWNTexture);
+//        Mix_FreeChunk(gShoot);
+//        Mix_FreeMusic(gMusic);
+//    }
     void newGame()
     {
+        //cleanUp();
         clean(fighters);
         clean(bullets);
-// xóa animation
-//        if (gMusic != nullptr) Mix_FreeMusic( gMusic );
-//    if (gJump != nullptr) Mix_FreeChunk( gJump);
-//        SDL_DestroyTexture( manTexture );
-//        manTexture = nullptr;
         fighters.push_back(&player);
 	    player.initObject(POS_X , POS_Y , 10 , 0 , SIDE_PLAYER);
 	    boom.initObject(player.x , 0 - (rand()%5)*15 , 1 , 0 , SIDE_ALIEN );
 	    TURN.init(TURNTexture , TURN_FRAMES , TURN_CLIPS);
 	    BACK.init(BACKTexture , BACK_FRAMES , BACK_CLIPS);
 	    SHOOTING.init(SHOOTTexture , SHOOT_FRAMES , SHOOT_CLIPS);
+	    exploision.init(exploreTexture , EX_FRAMES , EX_CLIPS);
 	    hp.initHeart(10,10,300,25);
 	    initAnimation();
 	    player.state = STAND_STATE;
@@ -91,11 +107,13 @@ struct GameLoop {
         boomTexture = graphics.loadTexture("boom.png");
         TURNTexture = graphics.loadTexture("move.png");
         BACKTexture = graphics.loadTexture("back.png");
+        exploreTexture =graphics.loadTexture("ex.png");
         SHOOTTexture = graphics.loadTexture("shooting.png");
         UPTexture = graphics.loadTexture("Up.png");
         DOWNTexture = graphics.loadTexture("Down.png");
         gShoot = graphics.loadSound("jump.wav");
         gMusic = graphics.loadMusic("gamemusic.mp3");
+        gExploision = graphics.loadSound("jump.wav");
         newGame();
     }
 
@@ -325,10 +343,35 @@ struct GameLoop {
 		for (GameObject* b: bullets)
             graphics.renderTexture(b->texture, b->x, b->y);
 
-        for (GameObject* b: fighters)
+        for (GameObject* b: fighters){
             if (b->health > 0 and b->side == SIDE_ALIEN){
                 graphics.renderTexture(b->texture, b->x, b->y);
             }
+            if(b->health ==0 and b->side == SIDE_ALIEN){
+                static int frameCount = 0;
+                const int FRAME_DELAY = 15;
+
+                for (int i = 1; i <= 4; i++) {
+                    drawBackground(graphics.renderer);
+                    drawBoom(graphics);
+
+                    hp.drawHp(graphics);
+
+                    for (GameObject* b: bullets)
+                        graphics.renderTexture(b->texture, b->x, b->y);
+
+                    graphics.render(b->x, b->y, *animations[3]);
+                    if (frameCount >= FRAME_DELAY) {
+                        exploision.tick();
+                        frameCount = 0;
+                    }
+                    frameCount++;
+
+
+                }
+                graphics.play(gExploision);
+            }
+        }
 
         if(player.state == UP_STATE and player.health!=0) graphics.renderTexture(UPTexture , player.x , player.y);
         if(player.state == DOWN_STATE and player.health!=0) graphics.renderTexture(UPTexture , player.x , player.y);
