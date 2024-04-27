@@ -26,6 +26,7 @@
 #define PLAYER_BULLET_SPEED   16
 #define PLAYER_RELOAD          20
 #define MAX_KEYBOARD_KEYS 350
+#define SKILL_STATE 3
 
 #define MENU_STATE 1
 #define PLAY_STATE 2
@@ -40,6 +41,16 @@
 #define FRAME_PER_SECOND 60
 
 #define ENEMY_BULLET_SPEED    4
+
+const int SKILL_CLIPS[][4] = {
+    {  10, 100, 101, 108},
+    {150 , 100, 105, 102},
+    {290, 70, 110, 137},
+    {410, 40, 140, 160},
+    {550, 20, 200, 190},
+    {750, 20, 210, 187}};
+
+const int SKILL_FRAMES = sizeof(SKILL_CLIPS)/sizeof(int)/4;
 
 const int EX_CLIPS[][4] = {
     {  40, 60, 81, 57},
