@@ -29,7 +29,7 @@ struct GameLoop {
 	list<GameObject*> fighters;
 	vector<Sprite*> animations;
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture;
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture ,*deadTexture;
     Mix_Chunk *gShoot;
     Mix_Music *gMusic;
     Mix_Chunk *gExploision;
@@ -102,6 +102,7 @@ struct GameLoop {
         gShoot = graphics.loadSound("jump.wav");
         gMusic = graphics.loadMusic("gamemusic.mp3");
         gExploision = graphics.loadSound("jump.wav");
+        deadTexture = graphics.loadTexture("dead.png");
         newGame();
     }
 
@@ -304,21 +305,32 @@ struct GameLoop {
         }
     }
 
-    void playGame(int keyboard[] , Graphics graphics) {
+    void playGame(int keyboard[], Graphics graphics) {
         graphics.play(gMusic);
         upadteBoom();
-        if (player.health == 0 && --stageResetTimer <= 0){
-                cerr<<player.score<<endl;
-                newGame();
+        if (player.health == 0 && --stageResetTimer <= 0) {
+            cerr << player.score << endl;
+            newGame();
         }
 
-        handleEvents(keyboard , graphics);
+        handleEvents(keyboard, graphics);
         updateFighters();
         doEnemies();
         doBullets();
-        doCollision_Boom(boom);
-        doCollision_Enemy();
-        spawnEnemies();
+
+        if (player.state == SKILL_STATE && player.health != 0) {
+            for (GameObject *enemy : fighters) {
+                if (enemy->side == SIDE_ALIEN) {
+                    enemy->health = 0;
+                }
+            }
+
+            clean(bullets);
+        } else {
+            doCollision_Boom(boom);
+            doCollision_Enemy();
+            spawnEnemies();
+        }
     }
 
     void drawBoom(Graphics graphics) {
@@ -341,7 +353,7 @@ struct GameLoop {
             }
             if(b->health ==0 and b->side == SIDE_ALIEN){
                 static int frameCount = 0;
-                const int FRAME_DELAY = 25;
+                const int FRAME_DELAY = 5;
 
                 for (int i = 1; i <= 4; i++) {
                     graphics.render(b->x, b->y, *animations[3]);
@@ -364,7 +376,7 @@ struct GameLoop {
         if(player.state == TURN_STATE and player.health!=0) graphics.render(player.x , player.y ,*animations[0]);
         if (player.state == ATTACK_STATE && player.health != 0) {
             static int frameCount = 0;
-            const int FRAME_DELAY = 15;
+            const int FRAME_DELAY = 10;
 
             for (int i = 1; i <= 5; i++) {
                 graphics.render(player.x, player.y, *animations[2]);
@@ -377,7 +389,8 @@ struct GameLoop {
         }
         if(player.state == SKILL_STATE and player.health !=0){
             static int frameCount = 0;
-            const int FRAME_DELAY = 15;
+            const int FRAME_DELAY = 10;
+            const int SKILL_DURATION = 20;
 
             for (int i = 1; i <= 6; i++) {
                 graphics.render(player.x, player.y, *animations[4]);
@@ -386,6 +399,14 @@ struct GameLoop {
                     frameCount = 0;
                 }
                 frameCount++;
+            }
+            graphics.renderTexture(deadTexture , player.x - 250 , player.y - 180);
+            static int waitTime = 0;
+            if (waitTime >= SKILL_DURATION) {
+                player.state = STAND_STATE;
+                waitTime = 0;
+            } else {
+                waitTime++;
             }
         }
 
