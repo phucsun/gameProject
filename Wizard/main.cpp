@@ -11,16 +11,6 @@
 
 using namespace std;
 
-void waitUntilKeyPressed()
-{
-    SDL_Event e;
-    while (true) {
-        if ( SDL_PollEvent(&e) != 0 &&
-             (e.type == SDL_KEYDOWN || e.type == SDL_QUIT) )
-            return;
-        SDL_Delay(100);
-    }
-}
 int main(int argc, char *argv[])
 {
     srand(time(0));
@@ -39,26 +29,37 @@ int main(int argc, char *argv[])
     menu Menu;
     Menu.initMenu(graphics);
 
-    while(game.gameState == MENU_STATE){
-        Menu.handleMenuEvent(game);
-        Menu.drawMenu(graphics);
-    }
-    while(game.gameState == HELP_STATE){
-        exit(0);
-    }
-    while(game.gameState == PLAY_STATE){
-        while (true)
-        {
-            graphics.prepareScene();
+    bool quit = false;
+    while(!quit){
+
+        while(game.gameState == MENU_STATE){
+            Menu.handleMenuEvent(game);
+            Menu.drawMenu(graphics , game);
+        }
+        while(game.gameState == HELP_STATE){
+            SDL_RenderCopy(graphics.renderer , game.helpTexture , NULL , NULL);
+            SDL_RenderPresent(graphics.renderer);
+            SDL_Event e;
+            while(SDL_PollEvent(&e)){
+                if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_LEFT) {
+                        game.gameState = MENU_STATE;
+                }
+            }
+        }
+        while(game.gameState == PLAY_STATE){
+            while (true)
+            {
+                graphics.prepareScene();
 
 
-            input.getInput();
+                input.getInput();
 
-            game.playGame(input.keyboard , graphics);
-            game.drawGame(graphics);
-            graphics.presentScene();
+                game.playGame(input.keyboard , graphics);
+                game.drawGame(graphics);
+                graphics.presentScene();
 
-            SDL_Delay(20);
+                SDL_Delay(20);
+            }
         }
     }
 

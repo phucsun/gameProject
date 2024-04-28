@@ -22,7 +22,7 @@
 #define BOOM_WIDTH 36
 
 
-#define PLAYER_SPEED          10
+#define PLAYER_SPEED          8
 #define PLAYER_BULLET_SPEED   16
 #define PLAYER_RELOAD          20
 #define MAX_KEYBOARD_KEYS 350

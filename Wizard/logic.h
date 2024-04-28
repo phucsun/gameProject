@@ -25,12 +25,14 @@ struct GameLoop {
     Sprite exploision;
     Sprite Skill;
 
+    bool mixer;
+
     Heart hp;
     list<GameObject*> bullets;
 	list<GameObject*> fighters;
 	vector<Sprite*> animations;
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture ,*deadTexture ,*scoreTexture;
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture ,*deadTexture ,*scoreTexture , *helpTexture;
     Mix_Chunk *gShoot;
     Mix_Music *gMusic;
     Mix_Chunk *gExploision;
@@ -81,6 +83,7 @@ struct GameLoop {
 	    boom.w = BOOM_WIDTH;
 	    boom.h = BOOM_HEIGHT;
         enemySpawnTimer = 0;
+        mixer = true;
         stageResetTimer = FRAME_PER_SECOND * 3;
 
 	}
@@ -107,6 +110,7 @@ struct GameLoop {
         gExploision = graphics.loadSound("jump.wav");
         font = graphics.loadFont("Space Nation.ttf", 30);
         deadTexture = graphics.loadTexture("dead.png");
+        helpTexture = graphics.loadTexture("help.jpg");
         newGame();
     }
 
@@ -177,7 +181,7 @@ struct GameLoop {
             if(player.state != BACK_STATE and !keyPRESSED){
                 PLAYER_ATTACK();
                 player.state = ATTACK_STATE;
-                graphics.play(gShoot);
+                if(mixer) graphics.play(gShoot);
             }
         }
     }
@@ -310,7 +314,7 @@ struct GameLoop {
     }
 
     void playGame(int keyboard[], Graphics graphics) {
-        graphics.play(gMusic);
+        if(mixer) graphics.play(gMusic);
         upadteBoom();
         if (player.health == 0 && --stageResetTimer <= 0) {
             cerr << player.score << endl;
@@ -370,7 +374,7 @@ struct GameLoop {
 
 
                 }
-                graphics.play(gExploision);
+                if(mixer) graphics.play(gExploision);
             }
         }
 
