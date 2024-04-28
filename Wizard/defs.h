@@ -31,6 +31,7 @@
 #define MENU_STATE 1
 #define PLAY_STATE 2
 #define END_STATE 0
+#define HELP_STATE 3
 
 #define SIDE_PLAYER 0
 #define SIDE_ALIEN  1

@@ -37,6 +37,7 @@
 		<Unit filename="GameObject.h" />
 		<Unit filename="Input.cpp" />
 		<Unit filename="Input.h" />
+		<Unit filename="button.h" />
 		<Unit filename="defs.h" />
 		<Unit filename="graphics.h" />
 		<Unit filename="heart.h" />

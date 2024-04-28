@@ -43,6 +43,9 @@ int main(int argc, char *argv[])
         Menu.handleMenuEvent(game);
         Menu.drawMenu(graphics);
     }
+    while(game.gameState == HELP_STATE){
+        exit(0);
+    }
     while(game.gameState == PLAY_STATE){
         while (true)
         {

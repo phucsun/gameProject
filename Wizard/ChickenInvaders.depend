@@ -275,3 +275,78 @@
 	"graphics.h"
 	"logic.h"
 
+1714014594 source:d:\gameproject\wizard\gameobject.cpp
+	"GameObject.h"
+
+1714194097 d:\gameproject\wizard\gameobject.h
+	<iostream>
+	<list>
+	<SDL.h>
+	<SDL_image.h>
+	"defs.h"
+
+1714266799 d:\gameproject\wizard\defs.h
+
+1713898065 source:d:\gameproject\wizard\input.cpp
+	<SDL.h>
+	"defs.h"
+	"GameObject.h"
+	"Input.h"
+
+1713893845 d:\gameproject\wizard\input.h
+	<SDL.h>
+	"defs.h"
+	"GameObject.h"
+
+1714267471 source:d:\gameproject\wizard\main.cpp
+	<iostream>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_ttf.h>
+	"defs.h"
+	"input.h"
+	"graphics.h"
+	"logic.h"
+	"menu.h"
+	<ctime>
+
+1714232072 d:\gameproject\wizard\graphics.h
+	<vector>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_ttf.h>
+	<SDL_mixer.h>
+	"defs.h"
+
+1714234277 d:\gameproject\wizard\logic.h
+	<iostream>
+	<list>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	"SDL_ttf.h"
+	"defs.h"
+	"graphics.h"
+	"GameObject.h"
+	"Function.h"
+	"heart.h"
+
+1713896211 d:\gameproject\wizard\function.h
+	<iostream>
+	<math.h>
+	"defs.h"
+
+1714045286 d:\gameproject\wizard\heart.h
+	"defs.h"
+	"graphics.h"
+	"GameObject.h"
+
+1714270745 d:\gameproject\wizard\menu.h
+	"graphics.h"
+	"logic.h"
+	"button.h"
+
+1714270531 d:\gameproject\wizard\button.h
+	"SDL.h"
+	"graphics.h"
+
