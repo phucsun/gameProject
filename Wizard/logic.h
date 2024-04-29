@@ -67,7 +67,6 @@ struct GameLoop {
 
     void newGame()
     {
-        //cleanUp();
         clean(fighters);
         clean(bullets);
         fighters.push_back(&player);
@@ -212,7 +211,7 @@ struct GameLoop {
         if(player.health > 0){
             for (GameObject* fighter: fighters) {
                 if (fighter->side != b->side && b->checkCollision(fighter)) {
-                    player.score+=10;
+                    if(fighter->side == SIDE_ALIEN ) player.score+=10;
                     fighter->health = 0;
                     return true;
                 }
@@ -353,7 +352,16 @@ struct GameLoop {
             }
 
             clean(bullets);
-        } else {
+        }
+        else if(player.state == SKILL_2_STATE and player.health != 0){
+            for (GameObject* enemy : fighters) {
+                if (enemy->side == SIDE_ALIEN && player.checkCollision_SKILL(enemy)) {
+                    enemy->health = 0;
+                    player.score += 10;
+                }
+            }
+        }
+        else{
             doCollision_Boom(boom);
             doCollision_Enemy();
             spawnEnemies();
@@ -448,12 +456,6 @@ struct GameLoop {
                     frameCount = 0;
                 }
                 frameCount++;
-            }
-            for (GameObject* enemy : fighters) {
-                if (enemy->side == SIDE_ALIEN && player.checkCollision_SKILL(enemy)) {
-                    enemy->health = 0;
-                    player.score += 10;
-                }
             }
             static int waitTime = 0;
             if (waitTime >= SKILL_DURATION) {
