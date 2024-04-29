@@ -21,6 +21,7 @@ struct GameObject {
 	SDL_Texture *texture;
 
 	bool checkCollision(GameObject* other);
+	bool checkCollision_SKILL(GameObject *other);
 
     void player_move();
 	void move();

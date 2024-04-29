@@ -20,7 +20,7 @@ struct menu {
     Button mixerONButton;
     Button mixerOFFButton;
 
-    menu() : playButton(200, 0 , SCREEN_WIDTH /2 - 50 , 250),optionsButton(200,90,SCREEN_WIDTH/2 - 50 , 350),exitButton(200, 185, SCREEN_WIDTH / 2 - 50, 450 ) , mixerONButton(200 , 550 , 1000 , 480) , mixerOFFButton(200,640 , 1000 , 480){}
+    menu() : playButton(200, 0 , SCREEN_WIDTH /2 - 50 , 250),optionsButton(200,90,SCREEN_WIDTH/2 - 50 , 350),exitButton(200, 185, SCREEN_WIDTH / 2 - 50, 450 ) , mixerONButton(200 , 550 , 1000 , 380) , mixerOFFButton(200,640 , 1000 , 380){}
 
     void initMenu(Graphics graphics) {
         menuTexture = graphics.loadTexture("menu_game.jpg");
