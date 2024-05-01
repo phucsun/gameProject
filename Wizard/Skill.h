@@ -10,7 +10,7 @@ struct skill {
     bool used;
     SDL_Color cooldownColor;
 
-    skill() : skillCooldownTimer(0), skillCooldownDuration(0), cooldownColor({255, 0, 0, 255}) , used(false) {}
+    skill() : skillCooldownTimer(0), skillCooldownDuration(0), cooldownColor({255,255,255, 255}) , used(false) {}
 
     void updateSkillCooldown() {
         if (skillCooldownTimer > 0) {
