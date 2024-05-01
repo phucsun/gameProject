@@ -11,6 +11,7 @@
 #include "GameObject.h"
 #include "Function.h"
 #include "heart.h"
+#include "Skill.h"
 
 struct GameLoop {
 
@@ -26,6 +27,10 @@ struct GameLoop {
     Sprite Skill;
     Sprite Skill_2;
 
+    skill d;
+    skill u;
+    skill s;
+
     bool mixer;
 
     Heart hp;
@@ -34,13 +39,17 @@ struct GameLoop {
 	vector<Sprite*> animations;
 
     SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture
-    ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture , *skill_2Texture,*deadTexture ,*scoreTexture , *helpTexture;
+    ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture , *skill_2Texture,*deadTexture ,*scoreTexture , *powerTexture, *helpTexture , *skill_1_texture , *skill_1_texture_ , *skill_2_texture ,*skill_2_texture_ , *skill_3_texture_ , *skill_3_texture;
+
     Mix_Chunk *gShoot;
     Mix_Music *gMusic;
     Mix_Chunk *gExploision;
     TTF_Font* font;
+    TTF_Font* font_;
 
     SDL_Color color = {255, 255, 0, 0};
+    SDL_Color color_ = {255,255,255,255};
+
 
     int enemySpawnTimer;
     int stageResetTimer;
@@ -78,10 +87,11 @@ struct GameLoop {
 	    exploision.init(exploreTexture , EX_FRAMES , EX_CLIPS);
 	    Skill.init(skillTexture , SKILL_FRAMES , SKILL_CLIPS);
 	    Skill_2.init(skill_2Texture , SKILL_2_FRAMES , SKILL_2_CLIPS);
-	    hp.initHeart(10,10,300,25);
+	    hp.initHeart(10,10, 0 ,25);
 	    initAnimation();
 	    player.state = STAND_STATE;
 	    player.score = 0;
+	    player.power = 0;
 	    boom.health = 1;
 	    boom.w = BOOM_WIDTH;
 	    boom.h = BOOM_HEIGHT;
@@ -99,7 +109,7 @@ struct GameLoop {
         bulletTexture = graphics.loadTexture("arrow.png");
         enemyTexture = graphics.loadTexture("chickenwater.png");
         enemyBulletTexture = graphics.loadTexture("egg.png");
-        background = graphics.loadTexture("hallo.jpg");
+        background = graphics.loadTexture("bg.jpg");
         boomTexture = graphics.loadTexture("boom.png");
         TURNTexture = graphics.loadTexture("move.png");
         BACKTexture = graphics.loadTexture("back.png");
@@ -109,12 +119,19 @@ struct GameLoop {
         DOWNTexture = graphics.loadTexture("Down.png");
         skillTexture = graphics.loadTexture("skill.png");
         skill_2Texture = graphics.loadTexture("skill_2.png");
+        skill_1_texture = graphics.loadTexture("q.jpg");
+        skill_2_texture = graphics.loadTexture("e.jpg");
+        skill_3_texture = graphics.loadTexture("r.jpg");
         gShoot = graphics.loadSound("jump.wav");
         gMusic = graphics.loadMusic("gamemusic.mp3");
         gExploision = graphics.loadSound("jump.wav");
         font = graphics.loadFont("Space Nation.ttf", 30);
+        font_ = graphics.loadFont("Space Nation.ttf" , 15);
         deadTexture = graphics.loadTexture("dead.png");
         helpTexture = graphics.loadTexture("help.jpg");
+        skill_1_texture_ = graphics.loadTexture("q_.jpg");
+        skill_2_texture_= graphics.loadTexture("e_.jpg");
+        skill_3_texture_= graphics.loadTexture("r_.jpg");
         newGame();
     }
 
@@ -180,18 +197,27 @@ struct GameLoop {
                 TURN.tick();
                 keyPRESSED = true;
             }
-            if(keyboard[SDL_SCANCODE_SPACE]){
+            if(keyboard[SDL_SCANCODE_SPACE] and player.power >= 50 and s.used == false){
                 player.state = SKILL_STATE;
+                player.power -= 50;
+                (hp.rect).w -= 150;
+                if(mixer) graphics.play(gShoot);
+                s.used = true;
+                s.startSkillCooldown(100);
+            }
+            if(keyboard[SDL_SCANCODE_DOWN] and d.used == false){
+                player.state = SKILL_2_STATE;
+                d.used = true;
+                d.startSkillCooldown(10);
                 if(mixer) graphics.play(gShoot);
             }
-            if(keyboard[SDL_SCANCODE_DOWN]){
-                    player.state = SKILL_2_STATE;
-                    if(mixer) graphics.play(gShoot);
-            }
-            if (keyboard[SDL_SCANCODE_UP] && player.reload == 0){
-                if(player.state != BACK_STATE and !keyPRESSED){
+            if (keyboard[SDL_SCANCODE_UP] && player.reload == 0 and u.used == false){
+                if(player.state != BACK_STATE and !keyPRESSED and player.power >=5){
                     PLAYER_ATTACK();
+                    player.power -= 5;
                     player.state = ATTACK_STATE;
+                    u.used = true;
+                    u.startSkillCooldown(50);
                     if(mixer) graphics.play(gShoot);
                 }
             }
@@ -211,7 +237,11 @@ struct GameLoop {
         if(player.health > 0){
             for (GameObject* fighter: fighters) {
                 if (fighter->side != b->side && b->checkCollision(fighter)) {
-                    if(fighter->side == SIDE_ALIEN ) player.score+=10;
+                    if(fighter->side == SIDE_ALIEN ){
+                        player.score+=10;
+                        player.power+=10;
+                        hp.rect.w += 15;
+                    }
                     fighter->health = 0;
                     return true;
                 }
@@ -332,6 +362,9 @@ struct GameLoop {
 
     void playGame(int keyboard[], Graphics graphics) {
         if(mixer) graphics.play(gMusic);
+        if(d.used) d.updateSkillCooldown();
+        if(s.used) s.updateSkillCooldown();
+        if(u.used) u.updateSkillCooldown();
         upadteBoom();
         if (player.health == 0 && --stageResetTimer <= 0) {
             cerr << player.score << endl;
@@ -358,6 +391,8 @@ struct GameLoop {
                 if (enemy->side == SIDE_ALIEN && player.checkCollision_SKILL(enemy)) {
                     enemy->health = 0;
                     player.score += 10;
+                    player.power += 10;
+                    hp.rect.w += 30;
                 }
             }
         }
@@ -372,12 +407,46 @@ struct GameLoop {
         if(boom.health!=0)graphics.renderTexture(boomTexture,boom.x,boom.y);
     }
 
+    void drawSkill(Graphics graphics){
+        if (d.used) {
+            graphics.renderTexture(skill_1_texture_, 550, 40);
+            d.drawSkillCooldown(graphics.renderer, 552, 38, 27);
+        } else {
+            graphics.renderTexture(skill_1_texture, 550, 40);
+        }
+
+        if (!u.used and player.power >= 5) {
+            graphics.renderTexture(skill_2_texture, 630, 40);
+        }
+        else if(!s.used and player.power <5){
+            graphics.renderTexture(skill_2_texture_ , 630 ,40 );
+        }
+        else {
+            graphics.renderTexture(skill_2_texture_, 630, 40);
+            u.drawSkillCooldown(graphics.renderer, 632, 38, 27);
+        }
+
+        if(!s.used and player.power>=50){
+            graphics.renderTexture(skill_3_texture , 710 , 40);
+        }
+        else if(!s.used and player.power <50){
+            graphics.renderTexture(skill_3_texture_ , 710 , 40);
+        }
+        else{
+            graphics.renderTexture(skill_3_texture_ , 710 , 40);
+            s.drawSkillCooldown(graphics.renderer, 712, 38, 27);
+        }
+    }
+
+
     void drawGame(Graphics& graphics)
     {
         drawBackground(graphics.renderer);
         drawBoom(graphics);
 
         hp.drawHp(graphics);
+
+        drawSkill(graphics);
 
 		for (GameObject* b: bullets)
             graphics.renderTexture(b->texture, b->x, b->y);
@@ -446,7 +515,7 @@ struct GameLoop {
         }
         if(player.state == SKILL_2_STATE and player.health !=0 ){
             static int frameCount = 0;
-            const int FRAME_DELAY = 10;
+            const int FRAME_DELAY = 5;
             const int SKILL_DURATION = 30;
 
             for (int i = 1; i <= 5; i++) {
@@ -467,7 +536,14 @@ struct GameLoop {
         }
         string scoreText = "Score: " + to_string(player.score);
         scoreTexture = graphics.renderText(scoreText.c_str(), font, color);
+
         graphics.renderTexture(scoreTexture, SCREEN_WIDTH - 300 , 20);
+
+        string powerText = "POWER: " + to_string(player.power);
+        powerTexture = graphics.renderText(powerText.c_str(), font_, color_);
+        graphics.renderTexture(powerTexture, 30 , 15);
+
+        SDL_DestroyTexture(powerTexture);
         SDL_DestroyTexture(scoreTexture);
     }
 };

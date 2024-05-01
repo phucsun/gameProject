@@ -16,7 +16,6 @@ void GameObject::player_move(){
     y+=dy;
 }
 void GameObject::move(){
-//    if(y-w <=  200) x = 200+w;
     x += dx;
     y += dy;
 }

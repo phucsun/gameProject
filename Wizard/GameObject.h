@@ -17,6 +17,7 @@ struct GameObject {
 	int reload;
 	int state;
 	int score;
+	int power;
 	int moveDirection;
 	SDL_Texture *texture;
 
