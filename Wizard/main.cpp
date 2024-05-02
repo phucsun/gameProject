@@ -31,7 +31,6 @@ int main(int argc, char *argv[])
 
     bool quit = false;
     while(!quit){
-
         while(game.gameState == MENU_STATE){
             Menu.handleMenuEvent(game);
             Menu.drawMenu(graphics , game);

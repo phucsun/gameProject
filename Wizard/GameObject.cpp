@@ -1,5 +1,6 @@
 #include "GameObject.h"
 #include "defs.h"
+#include "graphics.h"
 
 bool GameObject::checkCollision(GameObject* other){
     return (max(x, other->x) < min(x + w, other->x + other->w)) && (max(y, other->y) < min(y + h, other->y + other->h));
@@ -18,6 +19,13 @@ void GameObject::player_move(){
 void GameObject::move(){
     x += dx;
     y += dy;
+}
+
+void GameObject::move_(){
+    x+=3*dx;
+    y+=3*dy;
+    sX-=dx;
+    sY-=dy;
 }
 
 void GameObject::AI_move(list<GameObject*>& bullets){

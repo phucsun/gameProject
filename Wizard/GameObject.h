@@ -6,12 +6,14 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include "defs.h"
-
+#include "graphics.h"
 using namespace std;
 
 struct GameObject {
 	int x , y , w , h;
     float dx , dy;
+
+    int sX , sY;
 	int side;
 	int health;
 	int reload;
@@ -26,6 +28,8 @@ struct GameObject {
 
     void player_move();
 	void move();
+
+	void move_();
 
     void AI_move(list<GameObject*>& bullets);
 

@@ -45,14 +45,16 @@
 
 #define ENEMY_BULLET_SPEED    6
 
-const int A_CLIPS[][4] ={
+const int e_CLIPS[][4] ={
     {1070, 18, 108, 158},
     {830 , 5, 105, 171},
     {535, 3, 152, 167},
     {240, 20, 192, 152},
-    {0, 20, 184, 151}};
+    {0, 20, 184, 151},
 
-const int A_FRAMES = sizeof(A_CLIPS)/sizeof(int)/4;
+    };
+
+const int e_FRAMES = sizeof(e_CLIPS)/sizeof(int)/4;
 
 const int SKILL_2_CLIPS[][4] = {
     {  20, 20, 100, 140},

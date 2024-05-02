@@ -27,6 +27,8 @@ struct GameLoop {
     Sprite Skill;
     Sprite Skill_2;
 
+    Sprite e_sprite;
+
     skill d;
     skill u;
     skill s;
@@ -38,7 +40,7 @@ struct GameLoop {
 	list<GameObject*> fighters;
 	vector<Sprite*> animations;
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture ,*e_move_Texture
     ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture , *skill_2Texture,*deadTexture ,*scoreTexture , *powerTexture, *helpTexture , *skill_1_texture , *skill_1_texture_ , *skill_2_texture ,*skill_2_texture_ , *skill_3_texture_ , *skill_3_texture;
 
     Mix_Chunk *gShoot;
@@ -72,6 +74,7 @@ struct GameLoop {
         animations.push_back(&exploision);
         animations.push_back(&Skill);
         animations.push_back(&Skill_2);
+        animations.push_back(&e_sprite);
     }
 
     void newGame()
@@ -87,6 +90,7 @@ struct GameLoop {
 	    exploision.init(exploreTexture , EX_FRAMES , EX_CLIPS);
 	    Skill.init(skillTexture , SKILL_FRAMES , SKILL_CLIPS);
 	    Skill_2.init(skill_2Texture , SKILL_2_FRAMES , SKILL_2_CLIPS);
+	    e_sprite.init(e_move_Texture , e_FRAMES , e_CLIPS);
 	    hp.initHeart(10,10, 0 ,25);
 	    initAnimation();
 	    player.state = STAND_STATE;
@@ -133,6 +137,7 @@ struct GameLoop {
         skill_2_texture_= graphics.loadTexture("e_.jpg");
         skill_3_texture_= graphics.loadTexture("r_.jpg");
         enemy_2_Texture = graphics.loadTexture("enemy.png");
+        e_move_Texture = graphics.loadTexture("a.png");
         newGame();
     }
 
@@ -201,7 +206,7 @@ struct GameLoop {
             if(keyboard[SDL_SCANCODE_SPACE] and player.power >= 50 and s.used == false){
                 player.state = SKILL_STATE;
                 player.power -= 50;
-                (hp.rect).w -= 150;
+                (hp.rect).w -= 200;
                 if(mixer) graphics.play(gShoot);
                 s.used = true;
                 s.startSkillCooldown(100);
@@ -209,13 +214,14 @@ struct GameLoop {
             if(keyboard[SDL_SCANCODE_DOWN] and d.used == false){
                 player.state = SKILL_2_STATE;
                 d.used = true;
-                d.startSkillCooldown(25);
+                d.startSkillCooldown(18);
                 if(mixer) graphics.play(gShoot);
             }
             if (keyboard[SDL_SCANCODE_UP] && player.reload == 0 and u.used == false){
                 if(player.state != BACK_STATE and !keyPRESSED and player.power >=5){
                     PLAYER_ATTACK();
                     player.power -= 5;
+                    hp.rect.w -= 20;
                     player.state = ATTACK_STATE;
                     u.used = true;
                     u.startSkillCooldown(50);
@@ -240,8 +246,14 @@ struct GameLoop {
                 if (fighter->side != b->side && b->checkCollision(fighter)) {
                     if(fighter->side == SIDE_ALIEN ){
                         player.score+=10;
-                        player.power+=10;
-                        hp.rect.w += 15;
+                        if(player.power <=90) {
+                            player.power+=10;
+                            hp.rect.w += 40;
+                        }
+                        else{
+                            player.power = 100;
+                            hp.rect.w = 400;
+                        }
                     }
                     fighter->health = 0;
                     return true;
@@ -290,7 +302,7 @@ struct GameLoop {
     void doEnemies() {
         for (GameObject* e: fighters) {
             if (e != &player && player.health != 0 && --e->reload <= 0)
-                ENEMY_ATTACK(e);
+                if(e->texture == enemyTexture ) ENEMY_ATTACK(e);
         }
     }
 
@@ -302,13 +314,15 @@ struct GameLoop {
             enemy->y = (rand() % 360) + 220;
             enemy->dx = -1;
             enemy->health = 1;
+            enemy->sX = 0 ;
+            enemy->sY = 0;
             enemy->reload = FRAME_PER_SECOND * (1 + (rand() % 3));
             enemy->side = SIDE_ALIEN;
             if(rand() % 2==0 ) enemy->texture = enemyTexture;
             else enemy->texture = enemy_2_Texture;
             SDL_QueryTexture(enemy->texture, NULL, NULL, &enemy->w, &enemy->h);
 
-            enemySpawnTimer = 100    + (rand() % 60);
+            enemySpawnTimer = 30    + (rand() % 60);
         }
     }
 
@@ -320,7 +334,10 @@ struct GameLoop {
         for(auto it_ = it ; it_ != fighters.end() ;it_++) {
             GameObject* enemy = *it_;
 
-            enemy->move();
+            if(enemy->texture == enemyTexture ) enemy->move();
+            if(enemy->texture == enemy_2_Texture){
+                enemy->move_();
+            }
 
             if (enemy->x < -enemy->w) enemy->health = 0;
 
@@ -394,7 +411,7 @@ struct GameLoop {
                     enemy->health = 0;
                     player.score += 10;
                     player.power += 10;
-                    hp.rect.w += 30;
+                    hp.rect.w += 40;
                 }
             }
 
@@ -441,7 +458,7 @@ struct GameLoop {
         if(!s.used and player.power>=50){
             graphics.renderTexture(skill_3_texture , 710 , 40);
         }
-        else if(!s.used and player.power <50){
+        else if(!s.used and player.power < 50){
             graphics.renderTexture(skill_3_texture_ , 710 , 40);
         }
         else{
@@ -465,7 +482,14 @@ struct GameLoop {
 
         for (GameObject* b: fighters){
             if (b->health > 0 and b->side == SIDE_ALIEN){
-                graphics.renderTexture(b->texture, b->x, b->y);
+                if(b->texture == enemyTexture ) graphics.renderTexture(b->texture, b->x, b->y);
+                if(b->texture == enemy_2_Texture ){
+                    graphics.render(b->x , b->y , *animations[6]);
+                    if(b->sX >= 15){
+                        e_sprite.tick();
+                        b->sX=0;
+                    }
+                }
             }
             if(b->health ==0 and b->side == SIDE_ALIEN){
                 static int frameCount = 0;

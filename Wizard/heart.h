@@ -23,7 +23,7 @@ struct Heart{
 
         SDL_SetRenderDrawColor(graphics.renderer, 255, 255, 255, 255);
 
-        SDL_Rect frameRect = {10, 10, 300, 25};
+        SDL_Rect frameRect = {10, 10, 400, 25};
         SDL_RenderDrawRect(graphics.renderer, &frameRect);
     }
 
