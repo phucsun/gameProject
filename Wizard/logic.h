@@ -26,12 +26,14 @@ struct GameLoop {
     Sprite exploision;
     Sprite Skill;
     Sprite Skill_2;
+    Sprite skill_4;
 
     Sprite e_sprite;
 
     skill d;
     skill u;
     skill s;
+    skill o;
 
     bool mixer;
 
@@ -40,7 +42,7 @@ struct GameLoop {
 	list<GameObject*> fighters;
 	vector<Sprite*> animations;
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture ,*e_move_Texture
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture ,*e_move_Texture , *skill_4_sprite_texture , *skill_4_texture , *skill_4_texture_
     ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture , *skill_2Texture,*deadTexture ,*scoreTexture , *powerTexture, *helpTexture , *skill_1_texture , *skill_1_texture_ , *skill_2_texture ,*skill_2_texture_ , *skill_3_texture_ , *skill_3_texture;
 
     Mix_Chunk *gShoot;
@@ -75,6 +77,7 @@ struct GameLoop {
         animations.push_back(&Skill);
         animations.push_back(&Skill_2);
         animations.push_back(&e_sprite);
+        animations.push_back(&skill_4);
     }
 
     void newGame()
@@ -91,14 +94,17 @@ struct GameLoop {
 	    Skill.init(skillTexture , SKILL_FRAMES , SKILL_CLIPS);
 	    Skill_2.init(skill_2Texture , SKILL_2_FRAMES , SKILL_2_CLIPS);
 	    e_sprite.init(e_move_Texture , e_FRAMES , e_CLIPS);
+	    skill_4.init(skill_4_sprite_texture , SKILL_4_FRAMES , SKILL_4_CLIPS);
 	    hp.initHeart(10,10, 0 ,25);
 	    initAnimation();
 	    player.state = STAND_STATE;
 	    player.score = 0;
 	    player.power = 0;
+	    player.damaged = false;
 	    boom.health = 1;
 	    boom.w = BOOM_WIDTH;
 	    boom.h = BOOM_HEIGHT;
+	    boom.collide  = false;
         enemySpawnTimer = 0;
         mixer = true;
         stageResetTimer = FRAME_PER_SECOND * 3;
@@ -138,13 +144,16 @@ struct GameLoop {
         skill_3_texture_= graphics.loadTexture("r_.jpg");
         enemy_2_Texture = graphics.loadTexture("enemy.png");
         e_move_Texture = graphics.loadTexture("a.png");
+        skill_4_sprite_texture = graphics.loadTexture("skill_3.png");
+        skill_4_texture = graphics.loadTexture("o.jpg");
+        skill_4_texture_ = graphics.loadTexture("o_.jpg");
         newGame();
     }
 
 
     void PLAYER_ATTACK()
     {
-        if(player.health >0 ){
+        if(player.health > 0 ){
             GameObject *bullet = new GameObject();
             bullets.push_back(bullet);
             bullet->texture = bulletTexture;
@@ -168,6 +177,7 @@ struct GameLoop {
         SlopeCalculation(player.x + (player.w / 2), player.y + (player.h / 2) , enemy->x, enemy->y, &bullet->dx, &bullet->dy);
         bullet->dx *= ENEMY_BULLET_SPEED;
         bullet->dy *= ENEMY_BULLET_SPEED;
+        bullet->collide = false;
 
         enemy->reload = (rand() % FRAME_PER_SECOND *4);
     }
@@ -211,6 +221,15 @@ struct GameLoop {
                 s.used = true;
                 s.startSkillCooldown(100);
             }
+            if(keyboard[SDL_SCANCODE_O] and player.power >=25 and o.used == false){
+                if(player.health<=9) player.health+=1;
+                player.power -=25;
+                hp.rect.w -= 10;
+                player.state = SKILL_3_STATE;
+                o.used = true;
+                if(mixer) graphics.play(gShoot);
+                o.startSkillCooldown(200);
+            }
             if(keyboard[SDL_SCANCODE_DOWN] and d.used == false){
                 player.state = SKILL_2_STATE;
                 d.used = true;
@@ -232,8 +251,11 @@ struct GameLoop {
     }
 
     bool playerCollideObject(GameObject* player , GameObject* object){
-        if(player->health >0 and player->checkCollision(object)){
-            player->health =0;
+        if(player->health >0 and player->checkCollision(object) and !player->damaged and !object->collide){
+            player->health -= 1;
+            player->damaged = true;
+            object->collide = true;
+            object->health = 0;
             return true;
         }
         return false;
@@ -254,8 +276,15 @@ struct GameLoop {
                             player.power = 100;
                             hp.rect.w = 400;
                         }
+                        fighter->health = 0;
                     }
-                    fighter->health = 0;
+                    if(fighter->side == SIDE_PLAYER) {
+                        if(!fighter->damaged and !b->collide){
+                            fighter->health -=1 ;
+                            fighter->damaged = true;
+                            b->collide = true;
+                        }
+                    }
                     return true;
                 }
             }
@@ -278,7 +307,7 @@ struct GameLoop {
         }
     }
 
-    void doCollision_Enemy(){
+    void doCollision_Enemy(Graphics graphics){
         if(player.health > 0){
             auto it = fighters.begin();
             it++;
@@ -286,6 +315,22 @@ struct GameLoop {
             for(auto it_ = it ; it_ != fighters.end() ;it_++) {
                 GameObject* enemy = *it_;
 
+                if(playerCollideObject(&player , enemy)){
+                    static int frameCount = 0;
+                    const int FRAME_DELAY = 5;
+
+                    for (int i = 1; i <= 4; i++) {
+                        graphics.render(enemy->x, enemy->y, *animations[3]);
+                        if (frameCount >= FRAME_DELAY) {
+                            exploision.tick();
+                            frameCount = 0;
+                        }
+                        frameCount++;
+
+
+                    }
+                    if(mixer) graphics.play(gExploision);
+                }
                 if(playerCollideObject(&player , enemy)){
                     it_ = fighters.erase(it_);
                 }
@@ -318,6 +363,7 @@ struct GameLoop {
             enemy->sY = 0;
             enemy->reload = FRAME_PER_SECOND * (1 + (rand() % 3));
             enemy->side = SIDE_ALIEN;
+            enemy->collide = false;
             if(rand() % 2==0 ) enemy->texture = enemyTexture;
             else enemy->texture = enemy_2_Texture;
             SDL_QueryTexture(enemy->texture, NULL, NULL, &enemy->w, &enemy->h);
@@ -348,7 +394,10 @@ struct GameLoop {
             }
         }
 
-        if(player.health >0 ) player.player_move();
+        if(player.health >0 ) {
+            player.player_move();
+            player.damaged = false;
+        }
         if (player.x < 0) player.x = 0;
         else if (player.x >= SCREEN_WIDTH - player.w)
             player.x = SCREEN_WIDTH - player.w;
@@ -377,13 +426,21 @@ struct GameLoop {
             boom.x = player.x;
             boom.y = 0 + boom.y - SCREEN_HEIGHT;
         }
+        if(boom.health ==0 ){
+            boom.health = 1;
+            boom.collide = false;
+            boom.y = boom.h - SCREEN_HEIGHT;
+            boom.x = player.x;
+        }
     }
 
     void playGame(int keyboard[], Graphics graphics) {
+        cerr<<player.health<<endl;
         if(mixer) graphics.play(gMusic);
         if(d.used) d.updateSkillCooldown();
         if(s.used) s.updateSkillCooldown();
         if(u.used) u.updateSkillCooldown();
+        if(o.used) o.updateSkillCooldown();
         upadteBoom();
         if (player.health == 0 && --stageResetTimer <= 0) {
             cerr << player.score << endl;
@@ -427,13 +484,29 @@ struct GameLoop {
         }
         else{
             doCollision_Boom(boom);
-            doCollision_Enemy();
+            doCollision_Enemy(graphics);
             spawnEnemies();
         }
     }
 
     void drawBoom(Graphics graphics) {
-        if(boom.health!=0)graphics.renderTexture(boomTexture,boom.x,boom.y);
+        if(boom.health!=0) graphics.renderTexture(boomTexture,boom.x,boom.y);
+        else{
+            static int frameCount = 0;
+            const int FRAME_DELAY = 5;
+
+            for (int i = 1; i <= 4; i++) {
+                graphics.render(boom.x, boom.y, *animations[3]);
+                if (frameCount >= FRAME_DELAY) {
+                    exploision.tick();
+                    frameCount = 0;
+                }
+                frameCount++;
+
+
+            }
+            if(mixer) graphics.play(gExploision);
+        }
     }
 
     void drawSkill(Graphics graphics){
@@ -465,6 +538,17 @@ struct GameLoop {
             graphics.renderTexture(skill_3_texture_ , 710 , 40);
             s.drawSkillCooldown(graphics.renderer, 712, 38, 27);
         }
+
+        if(!o.used and player.power>=25){
+            graphics.renderTexture(skill_4_texture , 780 , 40);
+        }
+        else if(!o.used and player.power < 50){
+            graphics.renderTexture(skill_4_texture_ , 780 , 40);
+        }
+        else{
+            graphics.renderTexture(skill_4_texture_ , 780 , 40);
+            o.drawSkillCooldown(graphics.renderer, 782, 38, 27);
+        }
     }
 
 
@@ -485,13 +569,13 @@ struct GameLoop {
                 if(b->texture == enemyTexture ) graphics.renderTexture(b->texture, b->x, b->y);
                 if(b->texture == enemy_2_Texture ){
                     graphics.render(b->x , b->y , *animations[6]);
-                    if(b->sX >= 15){
+                    if(b->sX >= 10){
                         e_sprite.tick();
                         b->sX=0;
                     }
                 }
             }
-            if(b->health ==0 and b->side == SIDE_ALIEN){
+            if(b->health == 0 and b->side == SIDE_ALIEN){
                 static int frameCount = 0;
                 const int FRAME_DELAY = 5;
 
@@ -558,6 +642,27 @@ struct GameLoop {
                 graphics.render(player.x, player.y, *animations[5]);
                 if (frameCount >= FRAME_DELAY) {
                     Skill_2.tick();
+                    frameCount = 0;
+                }
+                frameCount++;
+            }
+            static int waitTime = 0;
+            if (waitTime >= SKILL_DURATION) {
+                player.state = STAND_STATE;
+                waitTime = 0;
+            } else {
+                waitTime++;
+            }
+        }
+        if(player.state == SKILL_3_STATE and player.health != 0){
+            static int frameCount = 0;
+            const int FRAME_DELAY = 15;
+            const int SKILL_DURATION = 30;
+
+            for (int i = 1; i <= 5; i++) {
+                graphics.render(player.x, player.y, *animations[7]);
+                if (frameCount >= FRAME_DELAY) {
+                    skill_4.tick();
                     frameCount = 0;
                 }
                 frameCount++;

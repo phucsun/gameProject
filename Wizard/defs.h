@@ -14,6 +14,7 @@
 #define ATTACK_STATE 9
 #define STAND_STATE 0
 #define SKILL_2_STATE 1
+#define SKILL_3_STATE -2
 
 #define SKILL_W 180
 #define LIVE_STATE 0
@@ -44,6 +45,17 @@
 #define FRAME_PER_SECOND 60
 
 #define ENEMY_BULLET_SPEED    6
+
+const int SKILL_4_CLIPS[][4]={
+    {0, 0, 230, 230},
+    {310 , 0, 231, 234},
+    {630, 0, 224, 237},
+    {960, 0, 221, 236},
+    {1280, 0, 225, 232},
+
+    };
+
+const int SKILL_4_FRAMES = sizeof(SKILL_4_CLIPS)/sizeof(int)/4;
 
 const int e_CLIPS[][4] ={
     {1070, 18, 108, 158},

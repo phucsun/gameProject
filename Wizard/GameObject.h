@@ -21,6 +21,8 @@ struct GameObject {
 	int score;
 	int power;
 	int moveDirection;
+	bool damaged;
+	bool collide;
 	SDL_Texture *texture;
 
 	bool checkCollision(GameObject* other);
