@@ -44,6 +44,10 @@ int main(int argc, char *argv[])
                 if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_LEFT) {
                         game.gameState = MENU_STATE;
                 }
+                if(e.type ==  SDL_QUIT) {
+                    exit(0);
+                    break;
+                }
             }
         }
         while(game.gameState == PLAY_STATE){

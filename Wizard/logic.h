@@ -38,7 +38,7 @@ struct GameLoop {
 	list<GameObject*> fighters;
 	vector<Sprite*> animations;
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture
+    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture
     ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture , *skill_2Texture,*deadTexture ,*scoreTexture , *powerTexture, *helpTexture , *skill_1_texture , *skill_1_texture_ , *skill_2_texture ,*skill_2_texture_ , *skill_3_texture_ , *skill_3_texture;
 
     Mix_Chunk *gShoot;
@@ -132,6 +132,7 @@ struct GameLoop {
         skill_1_texture_ = graphics.loadTexture("q_.jpg");
         skill_2_texture_= graphics.loadTexture("e_.jpg");
         skill_3_texture_= graphics.loadTexture("r_.jpg");
+        enemy_2_Texture = graphics.loadTexture("enemy.png");
         newGame();
     }
 
@@ -208,7 +209,7 @@ struct GameLoop {
             if(keyboard[SDL_SCANCODE_DOWN] and d.used == false){
                 player.state = SKILL_2_STATE;
                 d.used = true;
-                d.startSkillCooldown(10);
+                d.startSkillCooldown(25);
                 if(mixer) graphics.play(gShoot);
             }
             if (keyboard[SDL_SCANCODE_UP] && player.reload == 0 and u.used == false){
@@ -303,7 +304,8 @@ struct GameLoop {
             enemy->health = 1;
             enemy->reload = FRAME_PER_SECOND * (1 + (rand() % 3));
             enemy->side = SIDE_ALIEN;
-            enemy->texture = enemyTexture;
+            if(rand() % 2==0 ) enemy->texture = enemyTexture;
+            else enemy->texture = enemy_2_Texture;
             SDL_QueryTexture(enemy->texture, NULL, NULL, &enemy->w, &enemy->h);
 
             enemySpawnTimer = 100    + (rand() % 60);
@@ -393,6 +395,16 @@ struct GameLoop {
                     player.score += 10;
                     player.power += 10;
                     hp.rect.w += 30;
+                }
+            }
+
+            auto it = bullets.begin();
+            while (it != bullets.end()) {
+                auto temp = it++;
+                GameObject* b = *temp;
+                if (player.checkCollision_SKILL(b) and b->side == SIDE_ALIEN) {
+                    delete b;
+                    bullets.erase(temp);
                 }
             }
         }
@@ -515,7 +527,7 @@ struct GameLoop {
         }
         if(player.state == SKILL_2_STATE and player.health !=0 ){
             static int frameCount = 0;
-            const int FRAME_DELAY = 5;
+            const int FRAME_DELAY = 15;
             const int SKILL_DURATION = 30;
 
             for (int i = 1; i <= 5; i++) {

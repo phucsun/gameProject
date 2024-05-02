@@ -43,7 +43,7 @@
 
 #define FRAME_PER_SECOND 60
 
-#define ENEMY_BULLET_SPEED    4
+#define ENEMY_BULLET_SPEED    6
 
 const int A_CLIPS[][4] ={
     {1070, 18, 108, 158},
