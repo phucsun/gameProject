@@ -321,7 +321,7 @@
 	<SDL_mixer.h>
 	"defs.h"
 
-1714672560 d:\gameproject\wizard\logic.h
+1714700489 d:\gameproject\wizard\logic.h
 	<iostream>
 	<list>
 	<SDL.h>
@@ -340,7 +340,7 @@
 	<math.h>
 	"defs.h"
 
-1714626208 d:\gameproject\wizard\heart.h
+1714699905 d:\gameproject\wizard\heart.h
 	"defs.h"
 	"graphics.h"
 	"GameObject.h"

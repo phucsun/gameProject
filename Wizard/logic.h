@@ -37,13 +37,14 @@ struct GameLoop {
 
     bool mixer;
 
+    Heart power;
     Heart hp;
     list<GameObject*> bullets;
 	list<GameObject*> fighters;
 	vector<Sprite*> animations;
 
     SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture ,*e_move_Texture , *skill_4_sprite_texture , *skill_4_texture , *skill_4_texture_
-    ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture , *skill_2Texture,*deadTexture ,*scoreTexture , *powerTexture, *helpTexture , *skill_1_texture , *skill_1_texture_ , *skill_2_texture ,*skill_2_texture_ , *skill_3_texture_ , *skill_3_texture;
+    ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture , *skill_2Texture,*deadTexture ,*scoreTexture , *powerTexture, *hpTexture , *helpTexture , *skill_1_texture , *skill_1_texture_ , *skill_2_texture ,*skill_2_texture_ , *skill_3_texture_ , *skill_3_texture;
 
     Mix_Chunk *gShoot;
     Mix_Music *gMusic;
@@ -95,7 +96,8 @@ struct GameLoop {
 	    Skill_2.init(skill_2Texture , SKILL_2_FRAMES , SKILL_2_CLIPS);
 	    e_sprite.init(e_move_Texture , e_FRAMES , e_CLIPS);
 	    skill_4.init(skill_4_sprite_texture , SKILL_4_FRAMES , SKILL_4_CLIPS);
-	    hp.initHeart(10,10, 0 ,25);
+	    power.initHeart(10,50, 0 ,25);
+	    hp.initHeart(10,10 , 400 , 25);
 	    initAnimation();
 	    player.state = STAND_STATE;
 	    player.score = 0;
@@ -213,18 +215,21 @@ struct GameLoop {
                 TURN.tick();
                 keyPRESSED = true;
             }
-            if(keyboard[SDL_SCANCODE_SPACE] and player.power >= 50 and s.used == false){
+            if(keyboard[SDL_SCANCODE_SPACE] and player.power >= 100 and s.used == false){
                 player.state = SKILL_STATE;
-                player.power -= 50;
-                (hp.rect).w -= 200;
+                player.power -= 100;
+                (power.rect).w -= 400;
                 if(mixer) graphics.play(gShoot);
                 s.used = true;
                 s.startSkillCooldown(100);
             }
             if(keyboard[SDL_SCANCODE_O] and player.power >=25 and o.used == false){
-                if(player.health<=9) player.health+=1;
+                if(player.health<=9){
+                    player.health+=1;
+                    hp.rect.w += 40;
+                }
                 player.power -=25;
-                hp.rect.w -= 10;
+                power.rect.w -= 100;
                 player.state = SKILL_3_STATE;
                 o.used = true;
                 if(mixer) graphics.play(gShoot);
@@ -240,7 +245,7 @@ struct GameLoop {
                 if(player.state != BACK_STATE and !keyPRESSED and player.power >=5){
                     PLAYER_ATTACK();
                     player.power -= 5;
-                    hp.rect.w -= 20;
+                    power.rect.w -= 20;
                     player.state = ATTACK_STATE;
                     u.used = true;
                     u.startSkillCooldown(50);
@@ -253,6 +258,7 @@ struct GameLoop {
     bool playerCollideObject(GameObject* player , GameObject* object){
         if(player->health >0 and player->checkCollision(object) and !player->damaged and !object->collide){
             player->health -= 1;
+            hp.rect.w -= 40;
             player->damaged = true;
             object->collide = true;
             object->health = 0;
@@ -268,19 +274,18 @@ struct GameLoop {
                 if (fighter->side != b->side && b->checkCollision(fighter)) {
                     if(fighter->side == SIDE_ALIEN ){
                         player.score+=10;
-                        if(player.power <=90) {
-                            player.power+=10;
-                            hp.rect.w += 40;
-                        }
-                        else{
+                        player.power+=10;
+                        power.rect.w += 40;
+                        if(player.power >= 100 and power.rect.w >= 400){
                             player.power = 100;
-                            hp.rect.w = 400;
+                            power.rect.w = 400;
                         }
                         fighter->health = 0;
                     }
                     if(fighter->side == SIDE_PLAYER) {
                         if(!fighter->damaged and !b->collide){
                             fighter->health -=1 ;
+                            hp.rect.w -=40;
                             fighter->damaged = true;
                             b->collide = true;
                         }
@@ -435,7 +440,6 @@ struct GameLoop {
     }
 
     void playGame(int keyboard[], Graphics graphics) {
-        cerr<<player.health<<endl;
         if(mixer) graphics.play(gMusic);
         if(d.used) d.updateSkillCooldown();
         if(s.used) s.updateSkillCooldown();
@@ -468,7 +472,11 @@ struct GameLoop {
                     enemy->health = 0;
                     player.score += 10;
                     player.power += 10;
-                    hp.rect.w += 40;
+                    power.rect.w += 40;
+                    if(player.power >= 100 and power.rect.w >= 400){
+                        player.power = 100;
+                        power.rect.w = 400;
+                    }
                 }
             }
 
@@ -557,6 +565,7 @@ struct GameLoop {
         drawBackground(graphics.renderer);
         drawBoom(graphics);
 
+        power.drawPower(graphics);
         hp.drawHp(graphics);
 
         drawSkill(graphics);
@@ -660,7 +669,7 @@ struct GameLoop {
             const int SKILL_DURATION = 30;
 
             for (int i = 1; i <= 5; i++) {
-                graphics.render(player.x, player.y, *animations[7]);
+                graphics.render(player.x, player.y-38, *animations[7]);
                 if (frameCount >= FRAME_DELAY) {
                     skill_4.tick();
                     frameCount = 0;
@@ -680,12 +689,17 @@ struct GameLoop {
 
         graphics.renderTexture(scoreTexture, SCREEN_WIDTH - 300 , 20);
 
-        string powerText = "POWER: " + to_string(player.power);
+        string powerText = "POWER:                  " + to_string(player.power);
         powerTexture = graphics.renderText(powerText.c_str(), font_, color_);
-        graphics.renderTexture(powerTexture, 30 , 15);
+        graphics.renderTexture(powerTexture, 30 , 55);
+
+        string hpText = "HP:                        " +  to_string(player.health*10) + "%";
+        hpTexture = graphics.renderText(hpText.c_str() , font_ , color_);
+        graphics.renderTexture(hpTexture , 30 , 15);
 
         SDL_DestroyTexture(powerTexture);
         SDL_DestroyTexture(scoreTexture);
+        SDL_DestroyTexture(hpTexture);
     }
 };
 

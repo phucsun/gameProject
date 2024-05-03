@@ -16,14 +16,23 @@ struct Heart{
         rect.w = w_;
         rect.h = h_;
     }
-
-    void drawHp(Graphics graphics) {
-        SDL_SetRenderDrawColor(graphics.renderer, 0, 0, 255, 255);
+    void drawHp(Graphics graphics){
+        SDL_SetRenderDrawColor(graphics.renderer, 255, 0, 0, 255);
         SDL_RenderFillRect(graphics.renderer, &rect);
 
         SDL_SetRenderDrawColor(graphics.renderer, 255, 255, 255, 255);
 
         SDL_Rect frameRect = {10, 10, 400, 25};
+        SDL_RenderDrawRect(graphics.renderer, &frameRect);
+    }
+
+    void drawPower(Graphics graphics) {
+        SDL_SetRenderDrawColor(graphics.renderer, 0, 0, 255, 255);
+        SDL_RenderFillRect(graphics.renderer, &rect);
+
+        SDL_SetRenderDrawColor(graphics.renderer, 255, 255, 255, 255);
+
+        SDL_Rect frameRect = {10, 50, 400, 25};
         SDL_RenderDrawRect(graphics.renderer, &frameRect);
     }
 
