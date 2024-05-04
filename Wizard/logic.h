@@ -303,7 +303,7 @@ struct GameLoop {
             for (GameObject* fighter: fighters) {
                 if (fighter->side != b->side && b->checkCollision(fighter)) {
                     if(fighter->side == SIDE_ALIEN ){
-                        player.score+=10;
+                        player.score+=1;
                         player.power+=10;
                         power.rect.w += 40;
                         if(player.power >= 100 and power.rect.w >= 400){
@@ -493,7 +493,7 @@ struct GameLoop {
         if (player.state == SKILL_STATE && player.health != 0) {
             for (GameObject *enemy : fighters) {
                 if (enemy->side == SIDE_ALIEN) {
-                    player.score+=10;
+                    player.score+=1;
                     enemy->health = 0;
                 }
             }
@@ -504,7 +504,7 @@ struct GameLoop {
             for (GameObject* enemy : fighters) {
                 if (enemy->side == SIDE_ALIEN && player.checkCollision_SKILL(enemy)) {
                     enemy->health = 0;
-                    player.score += 10;
+                    player.score += 1;
                     player.power += 10;
                     power.rect.w += 40;
                     if(player.power >= 100 and power.rect.w >= 400){
