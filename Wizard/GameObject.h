@@ -29,6 +29,8 @@ struct GameObject {
 	bool checkCollision_SKILL(GameObject *other);
 
     void player_move();
+
+    void bullet_move(Sprite& e);
 	void move();
 
 	void move_();

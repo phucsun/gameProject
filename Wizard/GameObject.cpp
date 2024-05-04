@@ -19,6 +19,15 @@ void GameObject::player_move(){
 void GameObject::move(){
     x += dx;
     y += dy;
+    sX-=dx;
+    sY-=dy;
+}
+
+void GameObject::bullet_move(Sprite& e){
+    x += dx;
+    y += dy;
+    e.tick();
+
 }
 
 void GameObject::move_(){

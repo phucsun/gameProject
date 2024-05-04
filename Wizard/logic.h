@@ -3,6 +3,7 @@
 #include <iostream>
 #include <list>
 #include <SDL.h>
+#include<fstream>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 #include "SDL_ttf.h"
@@ -12,6 +13,7 @@
 #include "Function.h"
 #include "heart.h"
 #include "Skill.h"
+
 
 struct GameLoop {
 
@@ -29,6 +31,7 @@ struct GameLoop {
     Sprite skill_4;
 
     Sprite e_sprite;
+    Sprite ENEMY;
 
     skill d;
     skill u;
@@ -60,7 +63,31 @@ struct GameLoop {
     int stageResetTimer;
 
     int backgroundX=0;
+    int highScore = 0;
     bool collisionHandled = false;
+
+    void loadHighScore() {
+        std::ifstream file("highscore.txt");
+        if (file.is_open()) {
+            file >> highScore;
+            file.close();
+        }
+    }
+
+    void saveHighScore() {
+        std::ofstream file("highscore.txt");
+        if (file.is_open()) {
+            file << highScore;
+            file.close();
+        }
+    }
+
+    void updateHighScore() {
+        if (player.score > highScore) {
+            highScore = player.score;
+            saveHighScore(); // Lưu điểm cao mới vào file
+        }
+    }
 
     void clean(list<GameObject*>& entities) {
         while (!entities.empty()) {
@@ -79,6 +106,7 @@ struct GameLoop {
         animations.push_back(&Skill_2);
         animations.push_back(&e_sprite);
         animations.push_back(&skill_4);
+        animations.push_back(&ENEMY);
     }
 
     void newGame()
@@ -95,6 +123,7 @@ struct GameLoop {
 	    Skill.init(skillTexture , SKILL_FRAMES , SKILL_CLIPS);
 	    Skill_2.init(skill_2Texture , SKILL_2_FRAMES , SKILL_2_CLIPS);
 	    e_sprite.init(e_move_Texture , e_FRAMES , e_CLIPS);
+	    ENEMY.init(enemyTexture , E_FRAMES , E_CLIPS);
 	    skill_4.init(skill_4_sprite_texture , SKILL_4_FRAMES , SKILL_4_CLIPS);
 	    power.initHeart(10,50, 0 ,25);
 	    hp.initHeart(10,10 , 400 , 25);
@@ -110,6 +139,7 @@ struct GameLoop {
         enemySpawnTimer = 0;
         mixer = true;
         stageResetTimer = FRAME_PER_SECOND * 3;
+        loadHighScore();
 
 	}
 
@@ -119,7 +149,7 @@ struct GameLoop {
         SDL_QueryTexture(player.texture, NULL, NULL, &player.w, &player.h);
         wizardTexture = graphics.loadTexture("face.png");
         bulletTexture = graphics.loadTexture("arrow.png");
-        enemyTexture = graphics.loadTexture("chickenwater.png");
+        enemyTexture = graphics.loadTexture("quai.png");
         enemyBulletTexture = graphics.loadTexture("egg.png");
         background = graphics.loadTexture("bg.jpg");
         boomTexture = graphics.loadTexture("boom.png");
@@ -145,7 +175,7 @@ struct GameLoop {
         skill_2_texture_= graphics.loadTexture("e_.jpg");
         skill_3_texture_= graphics.loadTexture("r_.jpg");
         enemy_2_Texture = graphics.loadTexture("enemy.png");
-        e_move_Texture = graphics.loadTexture("a.png");
+        e_move_Texture = graphics.loadTexture("crow.png");
         skill_4_sprite_texture = graphics.loadTexture("skill_3.png");
         skill_4_texture = graphics.loadTexture("o.jpg");
         skill_4_texture_ = graphics.loadTexture("o_.jpg");
@@ -181,7 +211,7 @@ struct GameLoop {
         bullet->dy *= ENEMY_BULLET_SPEED;
         bullet->collide = false;
 
-        enemy->reload = (rand() % FRAME_PER_SECOND *4);
+        enemy->reload = (rand() % FRAME_PER_SECOND)*3;
     }
 
     void handleEvents(int keyboard[] , Graphics graphics)
@@ -351,10 +381,12 @@ struct GameLoop {
 
     void doEnemies() {
         for (GameObject* e: fighters) {
-            if (e != &player && player.health != 0 && --e->reload <= 0)
-                if(e->texture == enemyTexture ) ENEMY_ATTACK(e);
+            if (e != &player && player.health != 0 && --e->reload <= 0) {
+                    ENEMY_ATTACK(e);
+            }
         }
     }
+
 
     void spawnEnemies(void) {
         if (--enemySpawnTimer <= 0) {
@@ -365,12 +397,13 @@ struct GameLoop {
             enemy->dx = -1;
             enemy->health = 1;
             enemy->sX = 0 ;
-            enemy->sY = 0;
             enemy->reload = FRAME_PER_SECOND * (1 + (rand() % 3));
             enemy->side = SIDE_ALIEN;
             enemy->collide = false;
+
             if(rand() % 2==0 ) enemy->texture = enemyTexture;
             else enemy->texture = enemy_2_Texture;
+
             SDL_QueryTexture(enemy->texture, NULL, NULL, &enemy->w, &enemy->h);
 
             enemySpawnTimer = 30    + (rand() % 60);
@@ -453,6 +486,7 @@ struct GameLoop {
 
         handleEvents(keyboard, graphics);
         updateFighters();
+        updateHighScore();
         doEnemies();
         doBullets();
 
@@ -528,7 +562,7 @@ struct GameLoop {
         if (!u.used and player.power >= 5) {
             graphics.renderTexture(skill_2_texture, 630, 40);
         }
-        else if(!s.used and player.power <5){
+        else if(!u.used and player.power <5){
             graphics.renderTexture(skill_2_texture_ , 630 ,40 );
         }
         else {
@@ -536,10 +570,10 @@ struct GameLoop {
             u.drawSkillCooldown(graphics.renderer, 632, 38, 27);
         }
 
-        if(!s.used and player.power>=50){
+        if(!s.used and player.power>=100){
             graphics.renderTexture(skill_3_texture , 710 , 40);
         }
-        else if(!s.used and player.power < 50){
+        else if(!s.used and player.power < 100){
             graphics.renderTexture(skill_3_texture_ , 710 , 40);
         }
         else{
@@ -575,10 +609,17 @@ struct GameLoop {
 
         for (GameObject* b: fighters){
             if (b->health > 0 and b->side == SIDE_ALIEN){
-                if(b->texture == enemyTexture ) graphics.renderTexture(b->texture, b->x, b->y);
+                if(b->texture == enemyTexture ){
+                    graphics.render(b->x , b->y , *animations[8]);
+                    if(b->sX >= 7){
+                        ENEMY.tick();
+                        b->sX =0;
+                    }
+
+                }
                 if(b->texture == enemy_2_Texture ){
                     graphics.render(b->x , b->y , *animations[6]);
-                    if(b->sX >= 10){
+                    if(b->sX >= 3){
                         e_sprite.tick();
                         b->sX=0;
                     }
