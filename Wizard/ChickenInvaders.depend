@@ -313,7 +313,7 @@
 	"menu.h"
 	<ctime>
 
-1714232072 d:\gameproject\wizard\graphics.h
+1714926447 d:\gameproject\wizard\graphics.h
 	<vector>
 	<SDL.h>
 	<SDL_image.h>
@@ -321,7 +321,7 @@
 	<SDL_mixer.h>
 	"defs.h"
 
-1714921862 d:\gameproject\wizard\logic.h
+1714927350 d:\gameproject\wizard\logic.h
 	<iostream>
 	<list>
 	<SDL.h>

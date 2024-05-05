@@ -12,6 +12,7 @@ struct Sprite {
     SDL_Texture* texture;
     std::vector<SDL_Rect> clips;
     int currentFrame = 0;
+    int tickCount = 0;
     int x, y;
 
     void init(SDL_Texture* _texture, int frames, const int _clips [][4]) {
@@ -27,6 +28,13 @@ struct Sprite {
     }
     void tick() {
         currentFrame = (currentFrame + 1) % clips.size();
+    }
+
+    void tickSlow(int n) {
+        tickCount = (tickCount + 1) % n;
+        if (tickCount == 0) {
+            currentFrame = (currentFrame + 1) % clips.size();
+        }
     }
 
     const SDL_Rect* getCurrentClip() const {

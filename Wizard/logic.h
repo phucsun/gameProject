@@ -649,7 +649,7 @@ struct GameLoop {
                 if(b->texture == enemyTexture ){
                     graphics.render(b->x , b->y , *animations[8]);
                     if(b->sX >= 7){
-                        ENEMY.tick();
+                        ENEMY.tickSlow(3);
                         b->sX =0;
                     }
 
@@ -657,7 +657,7 @@ struct GameLoop {
                 if(b->texture == enemy_2_Texture ){
                     graphics.render(b->x , b->y , *animations[6]);
                     if(b->sX >= 3){
-                        e_sprite.tick();
+                        e_sprite.tickSlow(3);
                         b->sX=0;
                     }
                 }
@@ -694,7 +694,7 @@ struct GameLoop {
         }
         if(player.state == BACK_STATE and player.health!=0 ) graphics.render(player.x , player.y ,*animations[1]);
         if(player.state == TURN_STATE and player.health!=0) graphics.render(player.x , player.y ,*animations[0]);
-        if (player.state == ATTACK_STATE && player.health != 0) {
+        if (player.state == ATTACK_STATE && player.health != 0) {// ban sung
             static int frameCount = 0;
             const int FRAME_DELAY = 10;
             if(BULLET_STATE == BULLET_TURN){
@@ -727,30 +727,35 @@ struct GameLoop {
                 waitTime++;
             }
         }
-        if(player.state == SKILL_STATE and player.health !=0){
+        if(player.state == SKILL_STATE and player.health !=0){ // chieu cuoi
             static int frameCount = 0;
             const int FRAME_DELAY = 10;
-            const int SKILL_DURATION = 30;
-
-            for (int i = 1; i <= 6; i++) {
-                graphics.render(player.x, player.y, *animations[4]);
-                if (frameCount >= FRAME_DELAY) {
-                    Skill.tick();
-                    frameCount = 0;
+            const int SKILL_DURATION = 60;
+            while(animationInProgress){
+                SDL_SetRenderDrawColor(graphics.renderer, 255, 255, 255, 255);
+                SDL_RenderClear(graphics.renderer);
+                for (int i = 1; i <= 6; i++) {
+                    graphics.render(player.x, player.y, *animations[4]);
+                    if (frameCount >= FRAME_DELAY) {
+                        Skill.tick();
+                        frameCount = 0;
+                    }
+                    frameCount++;
                 }
-                frameCount++;
-            }
-            graphics.renderTexture(deadTexture , player.x - 250 , player.y - 180);
-            static int waitTime = 0;
-            if (waitTime >= SKILL_DURATION) {
-                player.state = STAND_STATE;
-                animationInProgress = false;
-                waitTime = 0;
-            } else {
-                waitTime++;
+                graphics.renderTexture(deadTexture , player.x - 250 , player.y - 180);
+                static int waitTime = 0;
+                if (waitTime >= SKILL_DURATION) {
+                    player.state = STAND_STATE;
+                    animationInProgress = false;
+                    waitTime = 0;
+                } else {
+                    waitTime++;
+                }
+                SDL_RenderPresent(graphics.renderer);
+                SDL_Delay(20);
             }
         }
-        if(player.state == SKILL_2_STATE and player.health !=0 ){
+        if(player.state == SKILL_2_STATE and player.health !=0 ){ // danh thuong
             static int frameCount = 0;
             const int FRAME_DELAY = 15;
             const int SKILL_DURATION = 15;
@@ -783,7 +788,7 @@ struct GameLoop {
                 waitTime++;
             }
         }
-        if(player.state == SKILL_3_STATE and player.health != 0){
+        if(player.state == SKILL_3_STATE and player.health != 0){ // hoi mau
             static int frameCount = 0;
             const int FRAME_DELAY = 15;
             const int SKILL_DURATION = 30;
