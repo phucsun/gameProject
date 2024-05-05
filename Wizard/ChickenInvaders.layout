@@ -2,44 +2,14 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
-	<File name="main.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1555" topLine="44" />
-		</Cursor>
-	</File>
-	<File name="Function.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="396" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="defs.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="856" topLine="126" />
-		</Cursor>
-	</File>
-	<File name="Skill.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="635" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="logic.h" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="10856" topLine="292" />
-		</Cursor>
-	</File>
-	<File name="Input.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="609" topLine="17" />
-		</Cursor>
-	</File>
-	<File name="GameObject.cpp" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="646" topLine="0" />
-		</Cursor>
-	</File>
 	<File name="button.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="443" topLine="6" />
+		</Cursor>
+	</File>
+	<File name="logic.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="10097" topLine="258" />
 		</Cursor>
 	</File>
 	<File name="Input.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -47,24 +17,54 @@
 			<Cursor1 position="64" topLine="15" />
 		</Cursor>
 	</File>
-	<File name="menu.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Input.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2023" topLine="50" />
+			<Cursor1 position="609" topLine="17" />
 		</Cursor>
 	</File>
-	<File name="heart.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="GameObject.cpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="951" topLine="13" />
+			<Cursor1 position="646" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="GameObject.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
+	<File name="main.cpp" open="1" top="1" tabpos="4" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="569" topLine="17" />
+			<Cursor1 position="873" topLine="18" />
 		</Cursor>
 	</File>
 	<File name="graphics.h" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="0" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="heart.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="951" topLine="13" />
+		</Cursor>
+	</File>
+	<File name="menu.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2023" topLine="50" />
+		</Cursor>
+	</File>
+	<File name="GameObject.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="569" topLine="17" />
+		</Cursor>
+	</File>
+	<File name="defs.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="773" topLine="24" />
+		</Cursor>
+	</File>
+	<File name="Function.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="396" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Skill.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="635" topLine="0" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

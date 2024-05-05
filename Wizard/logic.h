@@ -19,19 +19,24 @@ struct GameLoop {
 
     int gameState = MENU_STATE;
 
+    int BULLET_STATE ;
+
     GameObject player;
     GameObject boom;
 
     Sprite TURN;
     Sprite BACK;
     Sprite SHOOTING;
+    Sprite SHOOTING_BACK;
     Sprite exploision;
     Sprite Skill;
     Sprite Skill_2;
+    Sprite Skill_2B;
     Sprite skill_4;
 
     Sprite e_sprite;
     Sprite ENEMY;
+
 
     skill d;
     skill u;
@@ -46,8 +51,8 @@ struct GameLoop {
 	list<GameObject*> fighters;
 	vector<Sprite*> animations;
 
-    SDL_Texture *bulletTexture, *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture ,*e_move_Texture , *skill_4_sprite_texture , *skill_4_texture , *skill_4_texture_
-    ,*UPTexture , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture , *skill_2Texture,*deadTexture ,*scoreTexture , *powerTexture, *hpTexture , *helpTexture , *skill_1_texture , *skill_1_texture_ , *skill_2_texture ,*skill_2_texture_ , *skill_3_texture_ , *skill_3_texture;
+    SDL_Texture *bulletTexture, *skill_2BTexture , *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *shooting_bTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture ,*e_move_Texture , *skill_4_sprite_texture , *skill_4_texture , *skill_4_texture_
+    ,*UPTexture , *UPBTEXTURE , *DOWNBTEXTURE , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture , *skill_2Texture,*deadTexture ,*scoreTexture , *powerTexture, *hpTexture , *helpTexture , *skill_1_texture , *skill_1_texture_ , *skill_2_texture ,*skill_2_texture_ , *skill_3_texture_ , *skill_3_texture;
 
     Mix_Chunk *gShoot;
     Mix_Music *gMusic;
@@ -65,6 +70,7 @@ struct GameLoop {
     int backgroundX=0;
     int highScore = 0;
     bool collisionHandled = false;
+    bool animationInProgress = false;
 
     void loadHighScore() {
         std::ifstream file("highscore.txt");
@@ -85,7 +91,7 @@ struct GameLoop {
     void updateHighScore() {
         if (player.score > highScore) {
             highScore = player.score;
-            saveHighScore(); // Lưu điểm cao mới vào file
+            saveHighScore();
         }
     }
 
@@ -107,6 +113,8 @@ struct GameLoop {
         animations.push_back(&e_sprite);
         animations.push_back(&skill_4);
         animations.push_back(&ENEMY);
+        animations.push_back(&SHOOTING_BACK);
+        animations.push_back(&Skill_2B);
     }
 
     void newGame()
@@ -119,9 +127,11 @@ struct GameLoop {
 	    TURN.init(TURNTexture , TURN_FRAMES , TURN_CLIPS);
 	    BACK.init(BACKTexture , BACK_FRAMES , BACK_CLIPS);
 	    SHOOTING.init(SHOOTTexture , SHOOT_FRAMES , SHOOT_CLIPS);
+	    SHOOTING_BACK.init(shooting_bTexture , SHOOTB_FRAMES , SHOOTB_CLIPS);
 	    exploision.init(exploreTexture , EX_FRAMES , EX_CLIPS);
 	    Skill.init(skillTexture , SKILL_FRAMES , SKILL_CLIPS);
 	    Skill_2.init(skill_2Texture , SKILL_2_FRAMES , SKILL_2_CLIPS);
+	    Skill_2B.init(skill_2BTexture , SKILL_2B_FRAMES , SKILL_2B_CLIPS);
 	    e_sprite.init(e_move_Texture , e_FRAMES , e_CLIPS);
 	    ENEMY.init(enemyTexture , E_FRAMES , E_CLIPS);
 	    skill_4.init(skill_4_sprite_texture , SKILL_4_FRAMES , SKILL_4_CLIPS);
@@ -157,10 +167,14 @@ struct GameLoop {
         BACKTexture = graphics.loadTexture("back.png");
         exploreTexture =graphics.loadTexture("ex.png");
         SHOOTTexture = graphics.loadTexture("shooting.png");
+        shooting_bTexture = graphics.loadTexture("shooting_back.png");
         UPTexture = graphics.loadTexture("Up.png");
+        UPBTEXTURE = graphics.loadTexture("UpB.png");
+        DOWNBTEXTURE = graphics.loadTexture("DownB.png");
         DOWNTexture = graphics.loadTexture("Down.png");
         skillTexture = graphics.loadTexture("skill.png");
         skill_2Texture = graphics.loadTexture("skill_2.png");
+        skill_2BTexture = graphics.loadTexture("skill_2B.png");
         skill_1_texture = graphics.loadTexture("q.jpg");
         skill_2_texture = graphics.loadTexture("e.jpg");
         skill_3_texture = graphics.loadTexture("r.jpg");
@@ -191,8 +205,15 @@ struct GameLoop {
             bullet->texture = bulletTexture;
             SDL_QueryTexture(bullet->texture, NULL, NULL, &bullet->w, &bullet->h);
 
-            bullet->initObject(player.x + player.w , player.y + player.h / 2,1,0,SIDE_PLAYER);
-            bullet->dx = PLAYER_BULLET_SPEED;
+
+            if(BULLET_STATE == BULLET_TURN ){
+                bullet->initObject(player.x + player.w , player.y + player.h / 2,1,0,SIDE_PLAYER);
+                bullet->dx = PLAYER_BULLET_SPEED;
+            }
+            if(BULLET_STATE == BULLET_BACK ){
+                bullet->dx = -PLAYER_BULLET_SPEED;
+                bullet->initObject(player.x - 6, player.y + player.h / 2,1,0,SIDE_PLAYER);
+            }
             player.reload = PLAYER_RELOAD;
         }
     }
@@ -216,6 +237,7 @@ struct GameLoop {
 
     void handleEvents(int keyboard[] , Graphics graphics)
     {
+        if(animationInProgress) return;
         if(player.health>0){
             bool keyPRESSED = false;
             if (player.health == 0) return;
@@ -237,21 +259,27 @@ struct GameLoop {
                 player.dx = -PLAYER_SPEED;
                 BACK.tick();
                 player.state = BACK_STATE;
+                BULLET_STATE = BULLET_BACK;
                 keyPRESSED = true;
             }
             if (keyboard[SDL_SCANCODE_D]){
                 player.dx = PLAYER_SPEED;
                 player.state = TURN_STATE;
+                BULLET_STATE = BULLET_TURN;
                 TURN.tick();
                 keyPRESSED = true;
             }
             if(keyboard[SDL_SCANCODE_SPACE] and player.power >= 100 and s.used == false){
                 player.state = SKILL_STATE;
                 player.power -= 100;
+                gameState = ANIMATION_STATE;
                 (power.rect).w -= 400;
                 if(mixer) graphics.play(gShoot);
                 s.used = true;
                 s.startSkillCooldown(100);
+                player.dx = 0;
+                player.dy = 0;
+                animationInProgress = true;
             }
             if(keyboard[SDL_SCANCODE_O] and player.power >=25 and o.used == false){
                 if(player.health<=9){
@@ -264,15 +292,21 @@ struct GameLoop {
                 o.used = true;
                 if(mixer) graphics.play(gShoot);
                 o.startSkillCooldown(200);
+                animationInProgress = true;
+                player.dx = 0;
+                player.dy = 0;
             }
             if(keyboard[SDL_SCANCODE_DOWN] and d.used == false){
                 player.state = SKILL_2_STATE;
                 d.used = true;
                 d.startSkillCooldown(18);
                 if(mixer) graphics.play(gShoot);
+                animationInProgress = true;
+                player.dx = 0;
+                player.dy = 0;
             }
             if (keyboard[SDL_SCANCODE_UP] && player.reload == 0 and u.used == false){
-                if(player.state != BACK_STATE and !keyPRESSED and player.power >=5){
+                if(player.power >=5){
                     PLAYER_ATTACK();
                     player.power -= 5;
                     power.rect.w -= 20;
@@ -280,6 +314,9 @@ struct GameLoop {
                     u.used = true;
                     u.startSkillCooldown(50);
                     if(mixer) graphics.play(gShoot);
+                    animationInProgress = true;
+                    player.dx = 0;
+                    player.dy = 0;
                 }
             }
         }
@@ -643,22 +680,51 @@ struct GameLoop {
             }
         }
 
-        if(player.state == UP_STATE and player.health!=0) graphics.renderTexture(UPTexture , player.x , player.y);
-        if(player.state == DOWN_STATE and player.health!=0) graphics.renderTexture(UPTexture , player.x , player.y);
-        if(player.state == STAND_STATE and player.health !=0) graphics.renderTexture(player.texture , player.x , player.y);
+        if(player.state == UP_STATE and player.health!=0){
+                if(BULLET_STATE == BULLET_TURN) graphics.renderTexture(UPTexture , player.x , player.y);
+                if(BULLET_STATE == BULLET_BACK ) graphics.renderTexture(UPBTEXTURE , player.x , player.y);
+        }
+        if(player.state == DOWN_STATE and player.health!=0){
+                if(BULLET_STATE == BULLET_TURN) graphics.renderTexture(DOWNTexture , player.x , player.y);
+                if(BULLET_STATE == BULLET_BACK) graphics.renderTexture(DOWNBTEXTURE , player.x , player.y);
+        }
+        if(player.state == STAND_STATE and player.health !=0) {
+                graphics.renderTexture(player.texture , player.x , player.y);
+                animationInProgress = false;
+        }
         if(player.state == BACK_STATE and player.health!=0 ) graphics.render(player.x , player.y ,*animations[1]);
         if(player.state == TURN_STATE and player.health!=0) graphics.render(player.x , player.y ,*animations[0]);
         if (player.state == ATTACK_STATE && player.health != 0) {
             static int frameCount = 0;
             const int FRAME_DELAY = 10;
-
-            for (int i = 1; i <= 5; i++) {
-                graphics.render(player.x, player.y, *animations[2]);
-                if (frameCount >= FRAME_DELAY) {
-                    SHOOTING.tick();
-                    frameCount = 0;
+            if(BULLET_STATE == BULLET_TURN){
+                for (int i = 1; i <= 5; i++) {
+                    graphics.render(player.x, player.y, *animations[2]);
+                    if (frameCount >= FRAME_DELAY) {
+                        SHOOTING.tick();
+                        frameCount = 0;
+                    }
+                    frameCount++;
                 }
-                frameCount++;
+            }
+            if(BULLET_STATE == BULLET_BACK){
+                for (int i = 1; i <= 5; i++) {
+                    graphics.render(player.x, player.y, *animations[9]);
+                    if (frameCount >= FRAME_DELAY) {
+                        SHOOTING_BACK.tick();
+                        frameCount = 0;
+                    }
+                    frameCount++;
+                }
+            }
+            const int SKILL_DURATION = 15;
+            static int waitTime = 0;
+            if (waitTime >= SKILL_DURATION) {
+                player.state = STAND_STATE;
+                animationInProgress = false;
+                waitTime = 0;
+            } else {
+                waitTime++;
             }
         }
         if(player.state == SKILL_STATE and player.health !=0){
@@ -678,6 +744,7 @@ struct GameLoop {
             static int waitTime = 0;
             if (waitTime >= SKILL_DURATION) {
                 player.state = STAND_STATE;
+                animationInProgress = false;
                 waitTime = 0;
             } else {
                 waitTime++;
@@ -686,19 +753,31 @@ struct GameLoop {
         if(player.state == SKILL_2_STATE and player.health !=0 ){
             static int frameCount = 0;
             const int FRAME_DELAY = 15;
-            const int SKILL_DURATION = 30;
-
-            for (int i = 1; i <= 5; i++) {
-                graphics.render(player.x, player.y, *animations[5]);
-                if (frameCount >= FRAME_DELAY) {
-                    Skill_2.tick();
-                    frameCount = 0;
+            const int SKILL_DURATION = 15;
+            if(BULLET_STATE == BULLET_TURN){
+                for (int i = 1; i <= 5; i++) {
+                    graphics.render(player.x, player.y, *animations[5]);
+                    if (frameCount >= FRAME_DELAY) {
+                        Skill_2.tick();
+                        frameCount = 0;
+                    }
+                    frameCount++;
                 }
-                frameCount++;
+            }
+            if(BULLET_STATE == BULLET_BACK){
+                for (int i = 1; i <= 5; i++) {
+                    graphics.render(player.x, player.y, *animations[10]);
+                    if (frameCount >= FRAME_DELAY) {
+                        Skill_2B.tick();
+                        frameCount = 0;
+                    }
+                    frameCount++;
+                }
             }
             static int waitTime = 0;
             if (waitTime >= SKILL_DURATION) {
                 player.state = STAND_STATE;
+                animationInProgress = false;
                 waitTime = 0;
             } else {
                 waitTime++;
@@ -720,6 +799,7 @@ struct GameLoop {
             static int waitTime = 0;
             if (waitTime >= SKILL_DURATION) {
                 player.state = STAND_STATE;
+                animationInProgress = false;
                 waitTime = 0;
             } else {
                 waitTime++;

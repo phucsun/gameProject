@@ -275,12 +275,12 @@
 	"graphics.h"
 	"logic.h"
 
-1714806008 source:d:\gameproject\wizard\gameobject.cpp
+1714919387 source:d:\gameproject\wizard\gameobject.cpp
 	"GameObject.h"
 	"defs.h"
 	"graphics.h"
 
-1714806024 d:\gameproject\wizard\gameobject.h
+1714919387 d:\gameproject\wizard\gameobject.h
 	<iostream>
 	<list>
 	<SDL.h>
@@ -288,7 +288,7 @@
 	"defs.h"
 	"graphics.h"
 
-1714806577 d:\gameproject\wizard\defs.h
+1714918096 d:\gameproject\wizard\defs.h
 
 1713898065 source:d:\gameproject\wizard\input.cpp
 	<SDL.h>
@@ -301,7 +301,7 @@
 	"defs.h"
 	"GameObject.h"
 
-1714640430 source:d:\gameproject\wizard\main.cpp
+1714917991 source:d:\gameproject\wizard\main.cpp
 	<iostream>
 	<SDL.h>
 	<SDL_image.h>
@@ -321,7 +321,7 @@
 	<SDL_mixer.h>
 	"defs.h"
 
-1714810004 d:\gameproject\wizard\logic.h
+1714921862 d:\gameproject\wizard\logic.h
 	<iostream>
 	<list>
 	<SDL.h>

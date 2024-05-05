@@ -20,10 +20,12 @@
 #define LIVE_STATE 0
 #define DIE_STATE -1
 
-#define BOOM_SPEED 15
+#define BOOM_SPEED 8
 #define BOOM_HEIGHT 53
 #define BOOM_WIDTH 36
 
+#define BULLET_TURN 0
+#define BULLET_BACK 1
 
 #define PLAYER_SPEED          8
 #define PLAYER_BULLET_SPEED   16
@@ -35,6 +37,7 @@
 #define PLAY_STATE 2
 #define END_STATE 0
 #define HELP_STATE 3
+#define ANIMATION_STATE 4
 
 #define SIDE_PLAYER 0
 #define SIDE_ALIEN  1
@@ -102,6 +105,15 @@ const int SKILL_2_CLIPS[][4] = {
 
 const int SKILL_2_FRAMES = sizeof(SKILL_2_CLIPS)/sizeof(int)/4;
 
+const int SKILL_2B_CLIPS[][4] = {
+    {  860, 0, 100, 129},
+    {680 , 0, 115, 129},
+    {500, 0, 124, 126},
+    {300, 0, 154, 127},
+    {0, 0, 278, 129}};
+
+const int SKILL_2B_FRAMES = sizeof(SKILL_2B_CLIPS)/sizeof(int)/4;
+
 const int SKILL_CLIPS[][4] = {
     {  10, 100, 101, 108},
     {150 , 100, 105, 102},
@@ -144,10 +156,18 @@ const int TURN_FRAMES = sizeof(TURN_CLIPS)/sizeof(int)/4;
 
 const int SHOOT_CLIPS[][4] = {
     {  0, 0, 100, 126},
-    {170, 0, 100, 126},
+    {170, 0, 104, 126},
     {320, 0, 115, 125},
     {500, 0, 135, 126},
     {670,0, 133, 123}};
 const int SHOOT_FRAMES = sizeof(SHOOT_CLIPS)/sizeof(int)/4;
+
+const int SHOOTB_CLIPS[][4] = {
+    {700,0, 92, 126},
+    {530, 0, 99, 126},
+    {360, 0, 113, 126},
+    {160, 0, 131, 126},
+    {  0, 0, 137, 123}};
+const int SHOOTB_FRAMES = sizeof(SHOOTB_CLIPS)/sizeof(int)/4;
 
 #endif
