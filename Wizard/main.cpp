@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
 
     Input input;
     input.initKeyBoard();
+    input.initMouseButtons();
 
     GameLoop game;
 
@@ -50,19 +51,12 @@ int main(int argc, char *argv[])
             }
         }
         while(game.gameState == PLAY_STATE){
-            while (true)
-            {
-                graphics.prepareScene();
-
-
-                input.getInput();
-
-                game.playGame(input.keyboard , graphics);
-                game.drawGame(graphics);
-                graphics.presentScene();
-
-                SDL_Delay(20);
-            }
+            graphics.prepareScene();
+            input.getInput();
+            game.playGame(graphics , input);
+            game.drawGame(graphics);
+            graphics.presentScene();
+            SDL_Delay(20);
         }
     }
 

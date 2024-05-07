@@ -42,9 +42,11 @@
 		<Unit filename="defs.h" />
 		<Unit filename="graphics.h" />
 		<Unit filename="heart.h" />
+		<Unit filename="highscore.h" />
 		<Unit filename="logic.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="menu.h" />
+		<Unit filename="pauseMenu.h" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

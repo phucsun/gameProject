@@ -5,7 +5,7 @@
 
 
 #define SCREEN_WIDTH 1550
-#define SCREEN_HEIGHT 820
+#define SCREEN_HEIGHT 810
 
 #define UP_STATE 8
 #define DOWN_STATE 5
@@ -16,7 +16,10 @@
 #define SKILL_2_STATE 1
 #define SKILL_3_STATE -2
 
+#define MAX_ENEMIES 10
+
 #define SKILL_W 180
+#define SKILL_H 50
 #define LIVE_STATE 0
 #define DIE_STATE -1
 
@@ -31,6 +34,7 @@
 #define PLAYER_BULLET_SPEED   16
 #define PLAYER_RELOAD          20
 #define MAX_KEYBOARD_KEYS 350
+#define MAX_MOUSE_BUTTONS 3
 #define SKILL_STATE 3
 
 #define MENU_STATE 1
@@ -38,6 +42,7 @@
 #define END_STATE 0
 #define HELP_STATE 3
 #define ANIMATION_STATE 4
+#define PAUSE_STATE 11
 
 #define SIDE_PLAYER 0
 #define SIDE_ALIEN  1
