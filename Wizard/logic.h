@@ -14,6 +14,7 @@
 #include "heart.h"
 #include "Skill.h"
 #include "Input.h"
+#include "pauseMenu.h"
 
 
 struct GameLoop {
@@ -24,7 +25,6 @@ struct GameLoop {
 
     GameObject player;
     GameObject boom;
-
     Sprite TURN;
     Sprite BACK;
     Sprite SHOOTING;
@@ -53,7 +53,9 @@ struct GameLoop {
 	list<GameObject*> fighters;
 	vector<Sprite*> animations;
 
-    SDL_Texture *bulletTexture,*dieTexture, *pauseTexture, *pauseButtonTexture, *_pauseButtonTexture, *continueTexture , * _continueTexture , *skill_2BTexture , *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *shooting_bTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture ,*e_move_Texture , *skill_4_sprite_texture , *skill_4_texture , *skill_4_texture_
+	MenuP menuP;
+
+    SDL_Texture *bulletTexture,*dieTexture , *skill_2BTexture , *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *shooting_bTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture ,*e_move_Texture , *skill_4_sprite_texture , *skill_4_texture , *skill_4_texture_
     ,*UPTexture , *UPBTEXTURE , *DOWNBTEXTURE , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture , *skill_2Texture,*deadTexture ,*scoreTexture , *powerTexture, *hpTexture , *helpTexture , *skill_1_texture , *skill_1_texture_ , *skill_2_texture ,*skill_2_texture_ , *skill_3_texture_ , *skill_3_texture;
 
     Mix_Chunk *gShoot;
@@ -123,7 +125,7 @@ struct GameLoop {
         animations.push_back(&die);
     }
 
-    void newGame()
+    void newGame(Graphics graphics)
     {
         clean(fighters);
         clean(bullets);
@@ -142,6 +144,7 @@ struct GameLoop {
 	    ENEMY.init(enemyTexture , E_FRAMES , E_CLIPS);
 	    skill_4.init(skill_4_sprite_texture , SKILL_4_FRAMES , SKILL_4_CLIPS);
 	    die.init(dieTexture , die_FRAMES , die_CLIPS);
+	    menuP.initTexture(graphics);
 	    power.initHeart(10,50, 0 ,25);
 	    hp.initHeart(10,10 , 400 , 25);
 	    initAnimation();
@@ -204,12 +207,8 @@ struct GameLoop {
         skill_4_sprite_texture = graphics.loadTexture("skill_3.png");
         skill_4_texture = graphics.loadTexture("o.jpg");
         skill_4_texture_ = graphics.loadTexture("o_.jpg");
-        pauseButtonTexture = graphics.loadTexture("pause.png");
-        _pauseButtonTexture = graphics.loadTexture("_pause.png");
-        continueTexture = graphics.loadTexture("continue.png");
-        _continueTexture = graphics.loadTexture("_continue.png");
         dieTexture = graphics.loadTexture("die.png");
-        newGame();
+        newGame(graphics);
     }
 
 
@@ -253,9 +252,10 @@ struct GameLoop {
 
     void handleEvents(Graphics& graphics , Input& input_ )
     {
-        if (input_.mouseButtons[SDL_BUTTON_LEFT] && selected) {
+        if((menuP.pauseButton.isSelected or menuP.continueButton.isSelected)and input_.mouseButtons[SDL_BUTTON_LEFT]){
             paused = !paused;
         }
+        menuP.paused = paused;
         if(animationInProgress) return;
         if(player.health>0){
             bool keyPRESSED = false;
@@ -338,7 +338,8 @@ struct GameLoop {
                     }
                 }
             }
-            selected = (input_.mouseX >= SCREEN_WIDTH - 100 && input_.mouseX <= SCREEN_WIDTH - 56 && input_.mouseY >= 20 && input_.mouseY <= 64);
+            menuP.pauseButton.checkSelected(input_.mouseX, input_.mouseY);
+            menuP.continueButton.checkSelected(input_.mouseX,input_.mouseY);
         }
     }
 
@@ -472,7 +473,7 @@ struct GameLoop {
             enemy->dx = -1;
             enemy->health = 1;
             enemy->sX = 0 ;
-            enemy->reload = FRAME_PER_SECOND * (1 + (rand() % 3));
+            enemy->reload = FRAME_PER_SECOND * 2;
             enemy->side = SIDE_ALIEN;
             enemy->collide = false;
 
@@ -557,8 +558,7 @@ struct GameLoop {
             if(o.used) o.updateSkillCooldown();
             upadteBoom();
             if (player.health == 0 && --stageResetTimer <= 0) {
-                cerr << player.score << endl;
-                newGame();
+                gameState = DIE_STATE;
             }
 
             updateFighters();
@@ -675,17 +675,7 @@ struct GameLoop {
     {
         drawBackground(graphics.renderer);
         drawBoom(graphics);
-        if (paused) {
-            string pauseText = "GAME IS PAUSED";
-            pauseTexture = graphics.renderText(pauseText.c_str(), font__, color__);
-            graphics.renderTexture(pauseTexture, SCREEN_WIDTH/2 - 250 , SCREEN_HEIGHT/2 - 220);
-            if(selected) graphics.renderTexture(_continueTexture, SCREEN_WIDTH - 100, 20);
-            else graphics.renderTexture(continueTexture, SCREEN_WIDTH - 100, 20);
-        }
-        if(!paused){
-            if(selected) graphics.renderTexture(_pauseButtonTexture ,SCREEN_WIDTH - 100 , 20);
-            else graphics.renderTexture(pauseButtonTexture , SCREEN_WIDTH - 100 , 20);
-        }
+        menuP.drawPauseButton(graphics);
         power.drawPower(graphics);
         hp.drawHp(graphics);
 
@@ -744,7 +734,6 @@ struct GameLoop {
                 }
                 frameCount++;
             }
-            //SDL_Delay(10);
         }
 
         if(player.state == UP_STATE and player.health!=0){

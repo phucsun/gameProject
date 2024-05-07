@@ -7,6 +7,7 @@
 #include "graphics.h"
 #include "logic.h"
 #include "menu.h"
+#include "highscore.h"
 #include <ctime>
 
 using namespace std;
@@ -17,7 +18,8 @@ int main(int argc, char *argv[])
 
     Graphics graphics;
     graphics.init();
-
+    HighScore high_score;
+    high_score.init(graphics);
 
     Input input;
     input.initKeyBoard();
@@ -57,6 +59,10 @@ int main(int argc, char *argv[])
             game.drawGame(graphics);
             graphics.presentScene();
             SDL_Delay(20);
+        }
+        while(game.gameState == DIE_STATE){
+            high_score.handleEventMouse(game, graphics);
+            high_score.drawEndGame(graphics , game);
         }
     }
 
