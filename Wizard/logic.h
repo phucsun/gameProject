@@ -34,7 +34,7 @@ struct GameLoop {
     Sprite Skill_2;
     Sprite Skill_2B;
     Sprite skill_4;
-
+    Sprite die;
     Sprite e_sprite;
     Sprite ENEMY;
 
@@ -53,7 +53,7 @@ struct GameLoop {
 	list<GameObject*> fighters;
 	vector<Sprite*> animations;
 
-    SDL_Texture *bulletTexture, *pauseTexture, *pauseButtonTexture, *_pauseButtonTexture, *continueTexture , * _continueTexture , *skill_2BTexture , *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *shooting_bTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture ,*e_move_Texture , *skill_4_sprite_texture , *skill_4_texture , *skill_4_texture_
+    SDL_Texture *bulletTexture,*dieTexture, *pauseTexture, *pauseButtonTexture, *_pauseButtonTexture, *continueTexture , * _continueTexture , *skill_2BTexture , *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *shooting_bTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture ,*e_move_Texture , *skill_4_sprite_texture , *skill_4_texture , *skill_4_texture_
     ,*UPTexture , *UPBTEXTURE , *DOWNBTEXTURE , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture , *skill_2Texture,*deadTexture ,*scoreTexture , *powerTexture, *hpTexture , *helpTexture , *skill_1_texture , *skill_1_texture_ , *skill_2_texture ,*skill_2_texture_ , *skill_3_texture_ , *skill_3_texture;
 
     Mix_Chunk *gShoot;
@@ -120,6 +120,7 @@ struct GameLoop {
         animations.push_back(&ENEMY);
         animations.push_back(&SHOOTING_BACK);
         animations.push_back(&Skill_2B);
+        animations.push_back(&die);
     }
 
     void newGame()
@@ -140,6 +141,7 @@ struct GameLoop {
 	    e_sprite.init(e_move_Texture , e_FRAMES , e_CLIPS);
 	    ENEMY.init(enemyTexture , E_FRAMES , E_CLIPS);
 	    skill_4.init(skill_4_sprite_texture , SKILL_4_FRAMES , SKILL_4_CLIPS);
+	    die.init(dieTexture , die_FRAMES , die_CLIPS);
 	    power.initHeart(10,50, 0 ,25);
 	    hp.initHeart(10,10 , 400 , 25);
 	    initAnimation();
@@ -156,7 +158,7 @@ struct GameLoop {
         mixer = true;
         selected = false;
         paused = false;
-        stageResetTimer = FRAME_PER_SECOND * 3;
+        stageResetTimer = FRAME_PER_SECOND;
         loadHighScore();
 
 	}
@@ -206,6 +208,7 @@ struct GameLoop {
         _pauseButtonTexture = graphics.loadTexture("_pause.png");
         continueTexture = graphics.loadTexture("continue.png");
         _continueTexture = graphics.loadTexture("_continue.png");
+        dieTexture = graphics.loadTexture("die.png");
         newGame();
     }
 
@@ -675,7 +678,7 @@ struct GameLoop {
         if (paused) {
             string pauseText = "GAME IS PAUSED";
             pauseTexture = graphics.renderText(pauseText.c_str(), font__, color__);
-            graphics.renderTexture(pauseTexture, SCREEN_WIDTH/2 - 250 , SCREEN_HEIGHT/2 - 35);
+            graphics.renderTexture(pauseTexture, SCREEN_WIDTH/2 - 250 , SCREEN_HEIGHT/2 - 220);
             if(selected) graphics.renderTexture(_continueTexture, SCREEN_WIDTH - 100, 20);
             else graphics.renderTexture(continueTexture, SCREEN_WIDTH - 100, 20);
         }
@@ -695,6 +698,7 @@ struct GameLoop {
             if (b->health > 0 and b->side == SIDE_ALIEN){
                 if(b->texture == enemyTexture ){
                     if(b->x - (player.x+player.w) <= 300 and abs(b->y - player.y)<=150){
+                        b->dx =-3;
                         graphics.render(b->x , b->y , *animations[8]);
                         if(b->sX >= 3){
                             ENEMY.tickSlow(2);
@@ -703,6 +707,7 @@ struct GameLoop {
                     }
                     else{
                         graphics.renderTexture(enemy_2_Texture , b->x , b->y);
+                        b->dx = -1;
                     }
 
                 }
@@ -725,11 +730,21 @@ struct GameLoop {
                         frameCount = 0;
                     }
                     frameCount++;
-
-
                 }
-                if(mixer) graphics.play(gExploision);
             }
+        }
+        if(player.health==0){
+            static int frameCount = 0;
+            const int FRAME_DELAY = 60;
+            for (int i = 1; i <= 4; i++) {
+                graphics.render(player.x, player.y, *animations[11]);
+                if (frameCount >= FRAME_DELAY) {
+                    die.tick();
+                    frameCount = 0;
+                }
+                frameCount++;
+            }
+            //SDL_Delay(10);
         }
 
         if(player.state == UP_STATE and player.health!=0){

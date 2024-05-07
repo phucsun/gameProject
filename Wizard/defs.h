@@ -23,7 +23,7 @@
 #define LIVE_STATE 0
 #define DIE_STATE -1
 
-#define BOOM_SPEED 8
+#define BOOM_SPEED 15
 #define BOOM_HEIGHT 53
 #define BOOM_WIDTH 36
 
@@ -53,6 +53,15 @@
 #define FRAME_PER_SECOND 60
 
 #define ENEMY_BULLET_SPEED    6
+
+const int die_CLIPS[][4]={
+    {20, 0, 97, 114},
+    {180 , 0, 97, 114},
+    {330, 0, 107, 114},
+    {510, 0, 179, 114},
+    };
+
+const int die_FRAMES = sizeof(die_CLIPS)/sizeof(int)/4;
 
 const int e_CLIPS[][4]={
     {1180, 10, 132, 132},

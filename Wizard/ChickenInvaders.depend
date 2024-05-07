@@ -288,7 +288,7 @@
 	"defs.h"
 	"graphics.h"
 
-1715012218 d:\gameproject\wizard\defs.h
+1715055751 d:\gameproject\wizard\defs.h
 
 1715047036 source:d:\gameproject\wizard\input.cpp
 	<SDL.h>
@@ -321,7 +321,7 @@
 	<SDL_mixer.h>
 	"defs.h"
 
-1715050075 d:\gameproject\wizard\logic.h
+1715056284 d:\gameproject\wizard\logic.h
 	<iostream>
 	<list>
 	<SDL.h>
