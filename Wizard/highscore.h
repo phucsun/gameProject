@@ -17,7 +17,7 @@ struct HighScore{
     SDL_Texture* gameOver;
     SDL_Texture* frame;
     SDL_Event event;
-    SDL_Color color = {255 , 255 , 255,255};
+    SDL_Color color = {255 , 0 , 0 ,255};
     TTF_Font* font;
     TTF_Font* font_;
     int Mx;
@@ -25,16 +25,17 @@ struct HighScore{
 
     Button rePlayButton;
     Button quitButton;
+    Button backButton;
 
 
-    HighScore() : rePlayButton(200, 360 , SCREEN_WIDTH / 2 + 50 , 400 ),quitButton(200, 460, SCREEN_WIDTH / 2 + 50, 500 ) {}
+    HighScore() : rePlayButton(200, 360 , 250 , 400 ),quitButton(200, 460, 250 , 500 ) , backButton(200,275 , 250 , 300) {}
 
     void init(Graphics graphics) {
         bgETexture = graphics.loadTexture("end_pic.png");
         buttonTexture = graphics.loadTexture("button.png");
         font = graphics.loadFont("Space Nation.ttf" , 50);
         frame = graphics.loadTexture("hg.png");
-        font_ = graphics.loadFont("CottonCloud.ttf" , 150);
+        font_ = graphics.loadFont("Mario-Party-Hudson-Font.ttf" , 150);
     }
 
     void handleEventMouse(GameLoop& game , Graphics graphics) {
@@ -44,7 +45,7 @@ struct HighScore{
                     SDL_GetMouseState(&Mx, &My);
                     rePlayButton.checkSelected(Mx, My);
                     quitButton.checkSelected(Mx, My);
-
+                    backButton.checkSelected(Mx,My);
                     break;
                 }
                 case SDL_MOUSEBUTTONDOWN: {
@@ -53,6 +54,8 @@ struct HighScore{
                         game.newGame(graphics);
                     } else if (quitButton.isSelected) {
                         exit(0);
+                    } else if(backButton.isSelected){
+                        game.gameState = MENU_STATE;
                     }
                     break;
                 }
@@ -76,10 +79,11 @@ struct HighScore{
         SDL_RenderCopy(graphics.renderer, bgETexture, NULL, NULL);
         rePlayButton.renderButton(graphics, buttonTexture);
         quitButton.renderButton(graphics, buttonTexture);
-        graphics.renderTexture(frame , SCREEN_WIDTH - 500 , SCREEN_HEIGHT/2 - 300);
+        backButton.renderButton(graphics , buttonTexture);
+        graphics.renderTexture(frame , SCREEN_WIDTH - 500 , SCREEN_HEIGHT/2 - 200);
         std::string highestScoreText = std::to_string(highestScore);
         highestScoreTexture = graphics.renderText(highestScoreText.c_str(), font, color);
-        graphics.renderTexture(highestScoreTexture , SCREEN_WIDTH - 290  , SCREEN_HEIGHT/2 - 110);
+        graphics.renderTexture(highestScoreTexture , SCREEN_WIDTH - 290  , SCREEN_HEIGHT/2 - 10);
 
         std::string gameOverText = "GAME OVER";
         gameOver = graphics.renderText(gameOverText.c_str(), font_, color);

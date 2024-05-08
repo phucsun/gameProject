@@ -27,6 +27,7 @@ struct GameObject {
 
 	bool checkCollision(GameObject* other);
 	bool checkCollision_SKILL(GameObject *other);
+	bool checkCollision_SKILL_BACK(GameObject *other);
 
     void player_move();
 

@@ -131,7 +131,7 @@ struct GameLoop {
         clean(bullets);
         fighters.push_back(&player);
 	    player.initObject(POS_X , POS_Y , 10 , 0 , SIDE_PLAYER);
-	    boom.initObject(player.x , 0 - (rand()%5)*15 , 1 , 0 , SIDE_ALIEN );
+	    boom.initObject(player.x + 10 , 0 - (rand()%5)*15 , 1 , 0 , SIDE_ALIEN );
 	    TURN.init(TURNTexture , TURN_FRAMES , TURN_CLIPS);
 	    BACK.init(BACKTexture , BACK_FRAMES , BACK_CLIPS);
 	    SHOOTING.init(SHOOTTexture , SHOOT_FRAMES , SHOOT_CLIPS);
@@ -255,8 +255,8 @@ struct GameLoop {
     {
         if((menuP.pauseButton.isSelected or menuP.continueButton.isSelected)and input_.mouseButtons[SDL_BUTTON_LEFT]){
             paused = !paused;
+            menuP.paused = paused;
         }
-        menuP.paused = paused;
         if(animationInProgress) return;
         if(player.health>0){
             bool keyPRESSED = false;
@@ -579,7 +579,7 @@ struct GameLoop {
             }
             else if((player.state == SKILL_2_STATE or player.state == SKILL_3_STATE ) and player.health != 0){
                 for (GameObject* enemy : fighters) {
-                    if (enemy->side == SIDE_ALIEN && player.checkCollision_SKILL(enemy)) {
+                    if (enemy->side == SIDE_ALIEN &&((player.checkCollision_SKILL(enemy) and BULLET_STATE == BULLET_TURN )or (player.checkCollision_SKILL_BACK(enemy) and BULLET_STATE==BULLET_BACK))) {
                         enemy->health = 0;
                         player.score += 1;
                         player.power += 10;
@@ -595,7 +595,7 @@ struct GameLoop {
                 while (it != bullets.end()) {
                     auto temp = it++;
                     GameObject* b = *temp;
-                    if (player.checkCollision_SKILL(b) and b->side == SIDE_ALIEN) {
+                    if ((player.checkCollision_SKILL(b) or player.checkCollision_SKILL_BACK(b)) and b->side == SIDE_ALIEN) {
                         delete b;
                         bullets.erase(temp);
                     }
@@ -735,6 +735,7 @@ struct GameLoop {
                 }
                 frameCount++;
             }
+            SDL_Delay(10);
         }
 
         if(player.state == UP_STATE and player.health!=0){

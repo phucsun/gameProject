@@ -27,7 +27,7 @@ struct menu {
         buttonTexture = graphics.loadTexture("button.png");
     }
 
-    void handleMenuEvent(GameLoop& game) {
+    void handleMenuEvent(GameLoop& game , Graphics& graphics) {
         while (SDL_PollEvent(&event) != 0) {
             switch (event.type) {
                 case SDL_MOUSEMOTION: {
@@ -43,6 +43,7 @@ struct menu {
                 case SDL_MOUSEBUTTONDOWN: {
                     if (playButton.isSelected) {
                         game.gameState = PLAY_STATE;
+                        game.newGame(graphics);
                     } else if (exitButton.isSelected) {
                         exit(0);
                     } else if (optionsButton.isSelected) {
