@@ -322,7 +322,7 @@
 	<SDL_mixer.h>
 	"defs.h"
 
-1715105157 d:\gameproject\wizard\logic.h
+1715140114 d:\gameproject\wizard\logic.h
 	<iostream>
 	<list>
 	<SDL.h>
@@ -349,7 +349,7 @@
 	"graphics.h"
 	"GameObject.h"
 
-1715105230 d:\gameproject\wizard\menu.h
+1715137414 d:\gameproject\wizard\menu.h
 	"graphics.h"
 	"logic.h"
 	"button.h"
@@ -363,7 +363,7 @@
 	<SDL.h>
 	<cmath>
 
-1715097771 d:\gameproject\wizard\highscore.h
+1715142940 d:\gameproject\wizard\highscore.h
 	"graphics.h"
 	"logic.h"
 	"button.h"

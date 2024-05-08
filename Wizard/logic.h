@@ -55,7 +55,7 @@ struct GameLoop {
 
 	MenuP menuP;
 
-    SDL_Texture *bulletTexture,*dieTexture , *skill_2BTexture , *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *shooting_bTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture ,*e_move_Texture , *skill_4_sprite_texture , *skill_4_texture , *skill_4_texture_
+    SDL_Texture *bulletTexture, *best_skill , *dieTexture , *skill_2BTexture , *enemyTexture, *enemyBulletTexture, *background ,*boomTexture , *shooting_bTexture , *TURNTexture , *BACKTexture , *wizardTexture , *enemy_2_Texture ,*e_move_Texture , *skill_4_sprite_texture , *skill_4_texture , *skill_4_texture_
     ,*UPTexture , *UPBTEXTURE , *DOWNBTEXTURE , *DOWNTexture , *SHOOTTexture , *exploreTexture , *skillTexture , *skill_2Texture,*deadTexture ,*scoreTexture , *powerTexture, *hpTexture , *helpTexture , *skill_1_texture , *skill_1_texture_ , *skill_2_texture ,*skill_2_texture_ , *skill_3_texture_ , *skill_3_texture;
 
     Mix_Chunk *gShoot;
@@ -208,6 +208,7 @@ struct GameLoop {
         skill_4_texture = graphics.loadTexture("o.jpg");
         skill_4_texture_ = graphics.loadTexture("o_.jpg");
         dieTexture = graphics.loadTexture("die.png");
+        best_skill = graphics.loadTexture("bstSkill.jpg");
         newGame(graphics);
     }
 
@@ -788,8 +789,7 @@ struct GameLoop {
             const int FRAME_DELAY = 10;
             const int SKILL_DURATION = 60;
             while(animationInProgress){
-                SDL_SetRenderDrawColor(graphics.renderer, 255, 255, 255, 255);
-                SDL_RenderClear(graphics.renderer);
+                SDL_RenderCopy(graphics.renderer , best_skill , NULL ,NULL);
                 for (int i = 1; i <= 6; i++) {
                     graphics.render(player.x, player.y, *animations[4]);
                     if (frameCount >= FRAME_DELAY) {
@@ -798,7 +798,6 @@ struct GameLoop {
                     }
                     frameCount++;
                 }
-                graphics.renderTexture(deadTexture , player.x - 250 , player.y - 180);
                 static int waitTime = 0;
                 if (waitTime >= SKILL_DURATION) {
                     player.state = STAND_STATE;
@@ -817,7 +816,7 @@ struct GameLoop {
             const int SKILL_DURATION = 15;
             if(BULLET_STATE == BULLET_TURN){
                 for (int i = 1; i <= 5; i++) {
-                    graphics.render(player.x, player.y, *animations[5]);
+                    graphics.render(player.x + SKILL_W, player.y, *animations[5]);
                     if (frameCount >= FRAME_DELAY) {
                         Skill_2.tick();
                         frameCount = 0;
@@ -827,7 +826,7 @@ struct GameLoop {
             }
             if(BULLET_STATE == BULLET_BACK){
                 for (int i = 1; i <= 5; i++) {
-                    graphics.render(player.x, player.y, *animations[10]);
+                    graphics.render(player.x - SKILL_W, player.y, *animations[10]);
                     if (frameCount >= FRAME_DELAY) {
                         Skill_2B.tick();
                         frameCount = 0;
