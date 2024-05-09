@@ -7,12 +7,14 @@ bool GameObject::checkCollision(GameObject* other){
 }
 
 bool GameObject::checkCollision_SKILL(GameObject *other){
-    return (max(x+2*SKILL_W, other->x) < min(x+2*SKILL_W + w, other->x + other->w)) && (max(y, other->y) < min(y + h, other->y + other->h));
+    return (max(x, other->x) < min(x+2*SKILL_W + w, other->x + other->w)) && (max(y, other->y) < min(y + h, other->y + other->h));
 }
 
+
 bool GameObject::checkCollision_SKILL_BACK(GameObject* other){
-    return (max(x-SKILL_W, other->x) < min(x-SKILL_W + w, other->x + other->w)) && (max(y, other->y) < min(y + h, other->y + other->h));
+    return (max(x - 2*SKILL_W, other->x) < min(x + w, other->x + other->w)) && (max(y, other->y) < min(y + h, other->y + other->h));
 }
+
 
 void GameObject::player_move(){
     if(y<=225) y = 225;
