@@ -31,11 +31,11 @@ struct HighScore{
     HighScore() : rePlayButton(200, 360 , 250 , 400 ),quitButton(200, 460, 250 , 500 ) , backButton(200,275 , 250 , 300) {}
 
     void init(Graphics graphics) {
-        bgETexture = graphics.loadTexture("end_pic.png");
-        buttonTexture = graphics.loadTexture("button.png");
-        font = graphics.loadFont("Space Nation.ttf" , 50);
-        frame = graphics.loadTexture("hg.png");
-        font_ = graphics.loadFont("Mario-Party-Hudson-Font.ttf" , 150);
+        bgETexture = graphics.loadTexture("assets/end_pic.png");
+        buttonTexture = graphics.loadTexture("assets/button.png");
+        font = graphics.loadFont("assets/Space Nation.ttf" , 50);
+        frame = graphics.loadTexture("assets/hg.png");
+        font_ = graphics.loadFont("assets/Mario-Party-Hudson-Font.ttf" , 150);
     }
 
     void handleEventMouse(GameLoop& game , Graphics graphics) {

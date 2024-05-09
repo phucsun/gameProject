@@ -275,7 +275,7 @@
 	"graphics.h"
 	"logic.h"
 
-1715257957 source:d:\gameproject\wizard\gameobject.cpp
+1715260316 source:d:\gameproject\wizard\gameobject.cpp
 	"GameObject.h"
 	"defs.h"
 	"graphics.h"
@@ -318,7 +318,7 @@
 	<SDL_mixer.h>
 	"defs.h"
 
-1715259663 d:\gameproject\wizard\logic.h
+1715261806 d:\gameproject\wizard\logic.h
 	<iostream>
 	<list>
 	<SDL.h>
@@ -345,7 +345,7 @@
 	"graphics.h"
 	"GameObject.h"
 
-1715250858 d:\gameproject\wizard\menu.h
+1715261664 d:\gameproject\wizard\menu.h
 	"graphics.h"
 	"logic.h"
 	"button.h"
@@ -359,7 +359,7 @@
 	<SDL.h>
 	<cmath>
 
-1715160354 d:\gameproject\wizard\highscore.h
+1715261681 d:\gameproject\wizard\highscore.h
 	"graphics.h"
 	"logic.h"
 	"button.h"
@@ -368,7 +368,7 @@
 	<string>
 	<iostream>
 
-1715218105 d:\gameproject\wizard\pausemenu.h
+1715261689 d:\gameproject\wizard\pausemenu.h
 	"button.h"
 	"graphics.h"
 

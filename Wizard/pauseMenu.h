@@ -20,8 +20,8 @@ struct MenuP{
     MenuP() : pauseButton(200, 780 , SCREEN_WIDTH - 100, 20 ) , continueButton(200, 1190 ,SCREEN_WIDTH - 100, 20) , paused(false) {}
 
     void initTexture(Graphics graphics){
-        buttonTexture = graphics.loadTexture("button.png");
-        font__ = graphics.loadFont("fontt.ttf" , 70);
+        buttonTexture = graphics.loadTexture("assets/button.png");
+        font__ = graphics.loadFont("assets/fontt.ttf" , 70);
     }
 
     void drawPauseButton(Graphics graphics){

@@ -23,8 +23,8 @@ struct menu {
     menu() : playButton(200, 0 , 450 , 500), optionsButton(200,90, 700 , 500),exitButton(200, 185, 950, 500 ) , mixerONButton(200 , 550 , 750 , 380) , mixerOFFButton(200,640 , 750 , 380){}
 
     void initMenu(Graphics graphics) {
-        menuTexture = graphics.loadTexture("bgE.jpeg");
-        buttonTexture = graphics.loadTexture("button.png");
+        menuTexture = graphics.loadTexture("assets/bgE.jpeg");
+        buttonTexture = graphics.loadTexture("assets/button.png");
     }
 
     void handleMenuEvent(GameLoop& game , Graphics& graphics) {
