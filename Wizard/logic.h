@@ -131,7 +131,7 @@ struct GameLoop {
         clean(bullets);
         fighters.push_back(&player);
 	    player.initObject(POS_X , POS_Y , 10 , 0 , SIDE_PLAYER);
-	    boom.initObject(player.x + 10 , 0 - (rand()%5)*15 , 1 , 0 , SIDE_ALIEN );
+	    boom.initObject(player.x + 15 , 0 - (rand()%5)*15 , 1 , 0 , SIDE_ALIEN );
 	    TURN.init(TURNTexture , TURN_FRAMES , TURN_CLIPS);
 	    BACK.init(BACKTexture , BACK_FRAMES , BACK_CLIPS);
 	    SHOOTING.init(SHOOTTexture , SHOOT_FRAMES , SHOOT_CLIPS);
@@ -253,9 +253,14 @@ struct GameLoop {
 
     void handleEvents(Graphics& graphics , Input& input_ )
     {
-        if((menuP.pauseButton.isSelected or menuP.continueButton.isSelected)and input_.mouseButtons[SDL_BUTTON_LEFT]){
+        static bool buttonProcessedThisFrame = false;
+        if((menuP.pauseButton.isSelected or menuP.continueButton.isSelected)and input_.mouseButtons[SDL_BUTTON_LEFT] and !buttonProcessedThisFrame){
             paused = !paused;
             menuP.paused = paused;
+            buttonProcessedThisFrame = true;
+        }
+        if (!input_.mouseButtons[SDL_BUTTON_LEFT]) {
+            buttonProcessedThisFrame = false;
         }
         if(animationInProgress) return;
         if(player.health>0){
@@ -538,14 +543,14 @@ struct GameLoop {
 
         if (boom.y >= SCREEN_HEIGHT)
         {
-            boom.x = player.x;
+            boom.x = player.x+15;
             boom.y = 0 + boom.y - SCREEN_HEIGHT;
         }
         if(boom.health ==0 ){
             boom.health = 1;
             boom.collide = false;
             boom.y = boom.h - SCREEN_HEIGHT;
-            boom.x = player.x;
+            boom.x = player.x +15;
         }
     }
 

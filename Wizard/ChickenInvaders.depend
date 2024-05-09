@@ -296,7 +296,7 @@
 	"GameObject.h"
 	"Input.h"
 
-1715149822 d:\gameproject\wizard\input.h
+1715217478 d:\gameproject\wizard\input.h
 	<SDL.h>
 	"defs.h"
 	"GameObject.h"
@@ -322,7 +322,7 @@
 	<SDL_mixer.h>
 	"defs.h"
 
-1715155903 d:\gameproject\wizard\logic.h
+1715220592 d:\gameproject\wizard\logic.h
 	<iostream>
 	<list>
 	<SDL.h>
@@ -363,7 +363,7 @@
 	<SDL.h>
 	<cmath>
 
-1715153816 d:\gameproject\wizard\highscore.h
+1715160354 d:\gameproject\wizard\highscore.h
 	"graphics.h"
 	"logic.h"
 	"button.h"
@@ -372,7 +372,7 @@
 	<string>
 	<iostream>
 
-1715101995 d:\gameproject\wizard\pausemenu.h
+1715218105 d:\gameproject\wizard\pausemenu.h
 	"button.h"
 	"graphics.h"
 

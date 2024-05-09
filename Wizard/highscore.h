@@ -87,7 +87,7 @@ struct HighScore{
 
         std::string gameOverText = "GAME OVER";
         gameOver = graphics.renderText(gameOverText.c_str(), font_, color);
-        graphics.renderTexture(gameOver , 10  , 100);
+        graphics.renderTexture(gameOver , 20  , 100);
 
         SDL_RenderPresent(graphics.renderer);
 
