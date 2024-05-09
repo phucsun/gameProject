@@ -13,6 +13,7 @@
     - Những tính năng mới :
          - Xử lí các kĩ năng của người chơi
          - Bật / tắt âm thanh
+         - Reset game
          - Xử lí logic game
          - . . . .
 

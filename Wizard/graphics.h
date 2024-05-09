@@ -56,7 +56,7 @@ struct Graphics {
         if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
             logErrorAndExit("SDL_Init", SDL_GetError());
 
-        window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE);
+        window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
         if (window == nullptr) logErrorAndExit("CreateWindow", SDL_GetError());
 
         if (!IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG))
@@ -155,6 +155,10 @@ struct Graphics {
         else if( Mix_PausedMusic() == 1 ) {
             Mix_ResumeMusic();
         }
+    }
+    void stop(Mix_Music *gMusic)
+    {
+        Mix_HaltMusic();
     }
 
     Mix_Chunk* loadSound(const char* path) {

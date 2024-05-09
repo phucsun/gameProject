@@ -42,8 +42,12 @@ struct menu {
                 }
                 case SDL_MOUSEBUTTONDOWN: {
                     if (playButton.isSelected) {
-                        game.gameState = PLAY_STATE;
-                        game.newGame(graphics);
+                        if(game.reset){
+                            game.gameState == PLAY_STATE;
+                            game.newGame(graphics);
+                        }
+                        else game.gameState = PLAY_STATE;
+
                     } else if (exitButton.isSelected) {
                         exit(0);
                     } else if (optionsButton.isSelected) {

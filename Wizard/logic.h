@@ -43,7 +43,7 @@ struct GameLoop {
     skill s;
     skill o;
 
-    bool mixer;
+    bool mixer = true;
     bool selected;
     bool paused;
 
@@ -78,6 +78,7 @@ struct GameLoop {
     int highScore = 0;
     bool collisionHandled = false;
     bool animationInProgress = false;
+    bool reset;
 
     void loadHighScore() {
         std::ifstream file("highscore.txt");
@@ -158,8 +159,9 @@ struct GameLoop {
 	    boom.collide  = false;
         enemySpawnTimer = 0;
         update = 0;
-        mixer = true;
+//        mixer = true;
         selected = false;
+        reset = false;
         paused = false;
         stageResetTimer = FRAME_PER_SECOND;
         loadHighScore();
@@ -198,7 +200,7 @@ struct GameLoop {
         font_ = graphics.loadFont("Space Nation.ttf" , 15);
         font__ = graphics.loadFont("fontt.ttf" , 70);
         deadTexture = graphics.loadTexture("dead.png");
-        helpTexture = graphics.loadTexture("help.jpg");
+        helpTexture = graphics.loadTexture("help.jpeg");
         skill_1_texture_ = graphics.loadTexture("q_.jpg");
         skill_2_texture_= graphics.loadTexture("e_.jpg");
         skill_3_texture_= graphics.loadTexture("r_.jpg");
@@ -323,7 +325,7 @@ struct GameLoop {
                 if(input_.keyboard[SDL_SCANCODE_DOWN] and d.used == false){
                     player.state = SKILL_2_STATE;
                     d.used = true;
-                    d.startSkillCooldown(18);
+                    d.startSkillCooldown(30);
                     if(mixer) graphics.play(gShoot);
                     animationInProgress = true;
                     player.dx = 0;
@@ -556,8 +558,10 @@ struct GameLoop {
 
     void playGame(Graphics graphics , Input input_) {
         handleEvents(graphics ,input_);
-        if(!paused){
+        if(paused) graphics.stop(gMusic);
+        else{
             if(mixer)  graphics.play(gMusic);
+            if(!mixer) graphics.stop(gMusic);
             if(d.used) d.updateSkillCooldown();
             if(s.used) s.updateSkillCooldown();
             if(u.used) u.updateSkillCooldown();
@@ -565,6 +569,7 @@ struct GameLoop {
             upadteBoom();
             if (player.health == 0 && --stageResetTimer <= 0) {
                 gameState = DIE_STATE;
+                reset = true;
             }
 
             updateFighters();
@@ -593,6 +598,7 @@ struct GameLoop {
                             player.power = 100;
                             power.rect.w = 400;
                         }
+                        if(mixer) graphics.play(gExploision);
                     }
                 }
 
