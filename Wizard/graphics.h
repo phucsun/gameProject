@@ -145,21 +145,29 @@ struct Graphics {
         }
         return gMusic;
     }
+
     void play(Mix_Music *gMusic)
     {
         if (gMusic == nullptr) return;
 
-        if (Mix_PlayingMusic() == 0) {
-            Mix_PlayMusic( gMusic, -1 );
-        }
-        else if( Mix_PausedMusic() == 1 ) {
-            Mix_ResumeMusic();
+        if (Mix_PlayingMusic() == 0 || Mix_PausedMusic() == 1) {
+            if (Mix_PausedMusic() == 1) {
+                Mix_ResumeMusic();
+            } else {
+                Mix_PlayMusic(gMusic, -1);
+            }
         }
     }
+
     void stop(Mix_Music *gMusic)
     {
-        Mix_HaltMusic();
+        if (gMusic != nullptr) {
+            if (Mix_PlayingMusic() == 1) {
+                Mix_PauseMusic();
+            }
+        }
     }
+
 
     Mix_Chunk* loadSound(const char* path) {
         Mix_Chunk* gChunk = Mix_LoadWAV(path);

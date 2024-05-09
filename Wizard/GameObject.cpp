@@ -43,34 +43,33 @@ void GameObject::move_(){
     sY-=dy;
 }
 
-void GameObject::AI_move(list<GameObject*>& bullets){
-    for(auto bullet : bullets) {
-        if(bullet->side == 0){
-            float distanceX = bullet->x - x;
+void GameObject::AI_move(list<GameObject*>& bullets) {
+    for(auto& bullet : bullets) {
+        if(bullet->side == SIDE_PLAYER && !bullet->avoided) {
+            float distanceX =  - bullet->x + x;
             float distanceY = bullet->y - y;
-            if(0<= distanceX and distanceX <= w and x-10>0 and x+w+10<SCREEN_WIDTH ){
-                    x+= (rand()%3-2)*15;
+
+            if(std::abs(distanceY) <= h && std::abs(distanceX) <= 100) {
+                int randNum = rand() % 3;
+                if(randNum == 1 && y >= 300) {
+                    y -= 80;
+                    x -= 30;
+                    bullet->avoided = true;
+                }
+                else if(randNum == 0 && y < 550) {
+                    y += 80;
+                    x -= 30;
+                    bullet->avoided = true;
+                }
             }
         }
     }
-    x += moveDirection * 2;
 
-    if (x <= 0 || x + w >= SCREEN_WIDTH){
-        moveDirection *= -1;
-    }
-
-    y += 1;
-
-    if (rand() % 100 < 2) {
-        moveDirection *= -1;
-    }
-
-    if (y > SCREEN_HEIGHT || y < -h) {
-        y = -h;
-        x = rand() % (SCREEN_WIDTH - w);
-        moveDirection = (rand() % 2 == 0) ? 1 : -1;
-    }
+    x += dx;
+    sX -= dx;
 }
+
+
 
 bool GameObject::offScreen(){
     return x < -w || y < -h || x > SCREEN_WIDTH || y > SCREEN_HEIGHT;

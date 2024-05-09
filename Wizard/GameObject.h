@@ -23,6 +23,7 @@ struct GameObject {
 	int moveDirection;
 	bool damaged;
 	bool collide;
+	bool avoided;
 	SDL_Texture *texture;
 
 	bool checkCollision(GameObject* other);

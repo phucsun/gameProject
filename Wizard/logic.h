@@ -249,6 +249,7 @@ struct GameLoop {
         bullet->dx *= ENEMY_BULLET_SPEED;
         bullet->dy *= ENEMY_BULLET_SPEED;
         bullet->collide = false;
+        bullet->avoided = false;
 
         enemy->reload = (rand() % FRAME_PER_SECOND)*3;
     }
@@ -502,7 +503,7 @@ struct GameLoop {
         for(auto it_ = it ; it_ != fighters.end() ;it_++) {
             GameObject* enemy = *it_;
 
-            if(enemy->texture == enemyTexture ) enemy->move();
+            if(enemy->texture == enemyTexture ) enemy->AI_move(bullets);
             if(enemy->texture == enemy_2_Texture){
                 enemy->move_();
             }
